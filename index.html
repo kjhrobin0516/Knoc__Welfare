@@ -1717,11 +1717,11 @@
             </p>
             <label style="display:block; font-size:12px; font-weight:700; color:#1e293b; margin-bottom:6px;">Gemini API Key</label>
             <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy... 로 시작하는 API 키를 붙여넣으세요" style="width:100%; padding:10px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13.5px; margin-bottom:12px; outline:none;">
-            <label style="display:block; font-size:12px; font-weight:700; color:#1e293b; margin-bottom:6px;">사용 모델 선택 (향후 버전 변경 시 직접 입력 가능)</label>
+            <label style="display:block; font-size:12px; font-weight:700; color:#1e293b; margin-bottom:6px;">사용 모델 (Gemini 3.8 Flash 기본 고정)</label>
             <select id="geminiModelSelect" onchange="toggleCustomModelInput()" style="width:100%; padding:9px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; margin-bottom:10px; background:#f8fafc;">
-                <option value="gemini-2.5-flash">gemini-2.5-flash (권장 · 빠른 응답 및 자동 혼잡 우회 지원)</option>
-                <option value="gemini-flash-latest">gemini-flash-latest (구글 최신 Flash 버전 자동 연결)</option>
-                <option value="gemini-2.0-flash">gemini-2.0-flash (초고속 응답 안정 버전)</option>
+                <option value="gemini-3.8-flash">gemini-3.8-flash (기본 고정 · 최신 고성능 모델 + 사고수준 LOW 초고속 최적화)</option>
+                <option value="gemini-3.6-flash">gemini-3.6-flash (안정형 보조 모델)</option>
+                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (초경량 초고속 모델)</option>
                 <option value="custom">직접 모델명 입력</option>
             </select>
             <input type="text" id="customModelInput" placeholder="예: gemini-3.8-flash" style="display:none; width:100%; padding:9px 12px; border:1.5px solid #93c5fd; border-radius:8px; font-size:13px; margin-bottom:14px; background:#eff6ff; outline:none;">
@@ -1756,8 +1756,8 @@
                     <i class="m-hdr-dot" id="mobileApiStatusDot"></i>
                     <span id="mobileApiBtnText">AI 키 설정</span>
                 </button>
-                <button type="button" class="m-hdr-btn" onclick="location.reload()" title="대화 초기화">
-                    🔄
+                <button type="button" class="m-hdr-btn" onclick="clearSavedChatMemory()" title="대화 기억 초기화">
+                    🧹 초기화
                 </button>
             </div>
         </div>
@@ -1807,8 +1807,12 @@
                         <div class="chat-card-header">
                             <div class="chat-card-header-left">
                                 <span>🤖 KNOC 복지제도 AI 상담 어시스턴트</span>
+                                <span id="memoryStatusBadge" style="font-size:11.5px; background:#eff6ff; color:#0056b3; border:1px solid #bfdbfe; padding:2px 8px; border-radius:999px; font-weight:700;">🧠 대화 기억 ON (0턴 저장됨)</span>
                             </div>
-                            <button type="button" class="chat-reset-btn" onclick="location.reload()">🔄 대화 초기화</button>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" class="chat-reset-btn" onclick="clearSavedChatMemory()">🧹 기억 지우기</button>
+                                <button type="button" class="chat-reset-btn" onclick="location.reload()">🔄 화면 새로고침</button>
+                            </div>
                         </div>
 
                         <div class="chat-messages" id="chatMessages">
@@ -2931,19 +2935,92 @@
         ];
 
         /* =========================================================================
-           6. 사규 검색(Retrieval) + Google AI Studio(Gemini API) 생성형 응답 엔진
+           6. 사규 검색(Retrieval) + 영구 대화 기억(Memory) + Gemini 3.8 Flash 스트리밍 엔진
            ========================================================================= */
-        const chatHistory = [];
+        const MEMORY_STORAGE_KEY = "KNOC_AI_PERSISTENT_MEMORY_V1";
+        const PROFILE_STORAGE_KEY = "KNOC_AI_USER_PROFILE_V1";
+        const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+
+        let chatHistory = [];
+        let userMemoryFacts = [];
+
+        function loadPersistentMemory() {
+            try {
+                const rawHistory = localStorage.getItem(MEMORY_STORAGE_KEY);
+                if (rawHistory) {
+                    const parsed = JSON.parse(rawHistory);
+                    if (Array.isArray(parsed)) chatHistory = parsed;
+                }
+                const rawFacts = localStorage.getItem(PROFILE_STORAGE_KEY);
+                if (rawFacts) {
+                    const parsedFacts = JSON.parse(rawFacts);
+                    if (Array.isArray(parsedFacts)) userMemoryFacts = parsedFacts;
+                }
+            } catch (e) {
+                chatHistory = [];
+                userMemoryFacts = [];
+            }
+            updateMemoryBadge();
+        }
+
+        function savePersistentMemory() {
+            try {
+                if (chatHistory.length > 60) {
+                    chatHistory = chatHistory.slice(-60);
+                }
+                localStorage.setItem(MEMORY_STORAGE_KEY, JSON.stringify(chatHistory));
+                localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userMemoryFacts));
+            } catch (e) {}
+            updateMemoryBadge();
+        }
+
+        function updateMemoryBadge() {
+            const badge = document.getElementById("memoryStatusBadge");
+            const turns = Math.floor(chatHistory.length / 2);
+            if (badge) {
+                badge.textContent = `🧠 대화 기억 ON (${turns}턴 저장됨)`;
+            }
+        }
+
+        function extractUserFactsFromQuery(q) {
+            const patterns = [
+                /(사원|대리|과장|차장|부장|팀장|임원|지원직|기간제|전문계약직)/,
+                /(DB형|DC형|DC후DB|IRP)/i,
+                /(울산|본사|지사|거제|평택|서산|여수|곡성|동해|해외)/,
+                /(무주택|1주택|2주택|신혼|기혼|자녀\s*\d+명)/
+            ];
+            let updated = false;
+            for (const p of patterns) {
+                const m = q.match(p);
+                if (m && m[1]) {
+                    const fact = `사용자 언급 조건: ${m[1]}`;
+                    if (!userMemoryFacts.includes(fact)) {
+                        userMemoryFacts.push(fact);
+                        if (userMemoryFacts.length > 15) userMemoryFacts.shift();
+                        updated = true;
+                    }
+                }
+            }
+            if (updated) savePersistentMemory();
+        }
+
+        function clearSavedChatMemory() {
+            if (!confirm("저장된 이전 질문 내역과 대화 기억을 모두 초기화하시겠습니까?")) return;
+            chatHistory = [];
+            userMemoryFacts = [];
+            localStorage.removeItem(MEMORY_STORAGE_KEY);
+            localStorage.removeItem(PROFILE_STORAGE_KEY);
+            updateMemoryBadge();
+            location.reload();
+        }
 
         function getSavedApiKey() {
             return (localStorage.getItem("KNOC_GEMINI_API_KEY") || "").trim();
         }
 
-        const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
-
         function getSavedModel() {
             const saved = (localStorage.getItem("KNOC_GEMINI_MODEL") || "").trim();
-            if (!saved || saved.includes("3.8")) {
+            if (!saved || saved.startsWith("gemini-2.")) {
                 return DEFAULT_GEMINI_MODEL;
             }
             return saved;
@@ -2968,13 +3045,13 @@
             if (key) {
                 if (dot) dot.style.background = "#22c55e";
                 if (mDot) mDot.style.background = "#22c55e";
-                if (text) text.innerHTML = `<strong>생성형 AI 모드 작동 중 (${model})</strong> — 전체 사규 및 승인 FAQ 기반 실시간 답변`;
+                if (text) text.innerHTML = `<strong>생성형 AI 모드 고정 (${model} · 초고속 스트리밍 + 대화기억)</strong>`;
                 if (btn) btn.textContent = "🔑 API 키 변경/확인";
-                if (mTxt) mTxt.textContent = "AI 활성";
+                if (mTxt) mTxt.textContent = "3.8 활성";
             } else {
                 if (dot) dot.style.background = "#f59e0b";
                 if (mDot) mDot.style.background = "#f59e0b";
-                if (text) text.innerHTML = "<strong>기본 검색 모드 작동 중</strong> — 우측 [🔑 Google AI API 키 설정] 입력 시 생성형 AI가 활성화됩니다";
+                if (text) text.innerHTML = "<strong>기본 검색 모드 작동 중</strong> — 우측 [🔑 Google AI API 키 설정] 입력 시 Gemini 3.8 AI가 활성화됩니다";
                 if (btn) btn.textContent = "🔑 Google AI API 키 설정";
                 if (mTxt) mTxt.textContent = "AI 키 설정";
             }
@@ -2987,7 +3064,7 @@
             const customInp = document.getElementById("customModelInput");
 
             document.getElementById("geminiApiKeyInput").value = getSavedApiKey();
-            if (["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash"].includes(savedModel)) {
+            if (["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"].includes(savedModel)) {
                 sel.value = savedModel;
                 customInp.style.display = "none";
             } else {
@@ -3016,7 +3093,7 @@
             localStorage.setItem("KNOC_GEMINI_MODEL", model);
             closeApiKeyModal();
             checkApiKeyStatus();
-            alert(`Google AI Studio API 키와 모델(${model})이 저장되었습니다. 이제 생성형 AI가 사규를 바탕으로 답변합니다.`);
+            alert(`Google AI Studio API 키와 모델(${model})이 고정 저장되었습니다.`);
         }
 
         function clearApiKey() {
@@ -3027,7 +3104,6 @@
             alert("저장된 API 키가 삭제되었습니다. 기본 사규 검색 모드로 전환됩니다.");
         }
 
-        /* URL 파라미터(?key=...)로 공유받은 경우 자동 저장 후 주소창에서 키 숨김 처리 */
         (function initApiKeyFromUrl() {
             try {
                 const params = new URLSearchParams(window.location.search);
@@ -3046,7 +3122,6 @@
             if (!normQ) return { isOutOfDomain: false, ranked: [] };
             const compactQ = normQ.replace(/\s+/g, "");
 
-            /* 5대 지정 영역 외 질문(기념품, 복지포인트, 건강검진, 콘도 등) 판별 */
             const hasAllowedDomain = ALLOWED_5_DOMAIN_KEYWORDS.some(kw => compactQ.includes(kw));
             const hasOutDomain = OUT_OF_DOMAIN_KEYWORDS.some(kw => compactQ.includes(kw));
             if (hasOutDomain && !hasAllowedDomain) {
@@ -3079,7 +3154,6 @@
                 const catCompact = normalizeKo(item.cat).replace(/\s+/g, "");
                 const aCompact = normalizeKo(item.a).replace(/\s+/g, "");
 
-                /* 퀵 버튼 및 핀셋 라우팅 보너스 */
                 if ((compactQ === "제도전환" || compactQ === "dc퇴직연금제도전환부담금은언제입금되나요") && item.id === "퇴직연금_R07") score += 500;
                 if ((compactQ === "중도인출" || compactQ === "중도인출은어떤경우에가능한가요") && item.id === "퇴직연금_R25") score += 500;
                 if ((compactQ === "주택대부상환방법" || compactQ === "주택대부금은어떻게상환하나요") && item.id === "주택대부제도_R10") score += 500;
@@ -3090,13 +3164,12 @@
 
                 if (item.id === "STAT_TR_DIST" && (compactQ.includes("거리") || compactQ.includes("근거리") || compactQ.includes("40km") || compactQ.includes("15km") || compactQ.includes("30km") || compactQ.includes("2km"))) score += 300;
                 if (item.id === "STAT_TR_LONG" && ((compactQ.includes("장기출장") || compactQ.includes("장기체재")) || (compactQ.includes("일비") && compactQ.includes("감액") && !compactQ.includes("공용차량")))) score += 300;
-                if (item.id === "STAT_TR_DOM" && (compactQ.includes("친지") || compactQ.includes("공용차량") || ((compactQ.includes("일비") || compactQ.includes("식비") || compactQ.includes("숙박비")) && (compactQ.includes("얼마") || compactQ.includes("단가") || compactQ.includes("상한") || compactQ.includes("한도") || compactQ.includes("기준") || compactQ.includes("국내"))))) score += 260;
+                if (item.id === "STAT_TR_DOM" && (compactQ.includes("친지") || compactQ.includes("공용차량") || ((compactQ.includes("일비") || compactQ.includes("식비") || compactQ.includes("숙박비") || compactQ.includes("여비")) && (compactQ.includes("얼마") || compactQ.includes("단가") || compactQ.includes("상한") || compactQ.includes("한도") || compactQ.includes("기준") || compactQ.includes("국내") || compactQ.includes("제주") || compactQ.includes("출장"))))) score += 280;
                 if (item.id === "STAT_TR_OVERSEAS" && ((compactQ.includes("국외여비") || compactQ.includes("해외여비") || compactQ.includes("가등급") || compactQ.includes("나등급") || compactQ.includes("다등급")) || ((compactQ.includes("국외") || compactQ.includes("해외")) && (compactQ.includes("일비") || compactQ.includes("숙박비") || compactQ.includes("식비") || compactQ.includes("단가"))))) score += 260;
                 if (item.id === "STAT_TR_MOVE" && (compactQ.includes("이전료") || compactQ.includes("이사화물") || compactQ.includes("5톤") || compactQ.includes("75톤") || compactQ.includes("가족여비"))) score += 260;
                 if ((item.id === "STAT_HL_02" || item.id === "STAT_HL_03") && (compactQ.includes("임차주택") || compactQ.includes("임차사택") || compactQ.includes("기준가") || compactQ.includes("단신부임") || compactQ.includes("울산지사") || compactQ.includes("거제지사") || compactQ.includes("평택지사") || compactQ.includes("서산지사") || compactQ.includes("여수지사") || compactQ.includes("곡성지사") || compactQ.includes("동해지사"))) score += 260;
                 if (item.id === "STAT_SL_01" && ((compactQ.includes("학자금") || compactQ.includes("대학") || compactQ.includes("4년제") || compactQ.includes("2년제") || compactQ.includes("전문대")) && (compactQ.includes("거치") || compactQ.includes("상환기간") || compactQ.includes("몇년") || compactQ.includes("60개월") || compactQ.includes("36개월") || compactQ.includes("신청기한")))) score += 260;
 
-                /* 시트 도메인 일치 가산점(+35) 및 타 시트 감점(-45) */
                 if (qHasHousing && item.sheet === "주택대부제도") score += 35;
                 else if (qHasTuition && item.sheet === "학자금대부") score += 35;
                 else if (qHasPension && item.sheet === "퇴직연금") score += 35;
@@ -3172,147 +3245,139 @@
             return `${body}\n\n[출처: ${item.s}]\n${footer}`;
         }
 
-        /* 8. Google AI Studio (Gemini API) 호출 함수 (전체 복지 분야 & 다중 모델 자동 우회 탑재) */
-        async function callGeminiWithStatutes(userQuery, candidateItems, apiKey) {
-            const primaryModel = getSavedModel();
+        /* 8. Google AI Studio (Gemini 3.8 Flash 고정) 스트리밍 + 대화 기억 엔진 */
+        async function callGeminiWithStatutesStreaming(userQuery, candidateItems, apiKey, onChunkUpdate) {
+            const fixedModel = getSavedModel(); // 기본값: gemini-3.8-flash
 
-            // 질문 관련 상위 후보 10개 + 핵심 단가/기준 조항(STATUTES_8_DOCS)을 빠짐없이 병합
-            const contextItems = [...candidateItems.slice(0, 10)];
-            STATUTES_8_DOCS.forEach(doc => {
-                doc.articles.forEach(art => {
-                    if (!contextItems.some(c => c.id === art.id)) {
-                        contextItems.push(art);
-                    }
-                });
+            // 속도 최적화를 위해 상위 7개 핵심 후보 + 핵심 단가 조항만 간결하게 포함 (총 10개 이내)
+            const contextItems = [...candidateItems.slice(0, 7)];
+            const coreIds = ["STAT_TR_DOM", "STAT_TR_OVERSEAS", "STAT_HL_01", "STAT_SL_01"];
+            coreIds.forEach(cid => {
+                if (!contextItems.some(c => c.id === cid)) {
+                    const found = KNOC_DB.find(d => d.id === cid);
+                    if (found) contextItems.push(found);
+                }
             });
 
-            const statutesContext = contextItems.slice(0, 22).map((it, i) => {
-                return `[근거자료 ${i + 1}]
-- 복지분야: ${it.sheet} (${it.cat})
-- 표준질문: ${it.q}
-- 사규내용 및 승인답변: ${it.a}
-- 근거조항: ${it.s}
-- 실무유의사항: ${it.prompt || "없음"}
-- 담당내선: ${getDeptFooter(it.sheet)}`;
-            }).join("\n\n========================================\n\n");
+            const statutesContext = contextItems.slice(0, 10).map((it, i) => {
+                return `[자료${i + 1}|${it.sheet}-${it.cat}] Q:${it.q} / A:${it.a} (근거:${it.s}, 내선:${getDeptFooter(it.sheet)})`;
+            }).join("\n");
 
-            const systemInstruction = `당신은 한국석유공사(KNOC) 인사복지처 복지팀의 공식 '사내 복지제도 AI 상담 어시스턴트'입니다.
-반드시 제공된 [한국석유공사 사규 및 복지팀 승인 FAQ 자료]와 [이전 대화 맥락]을 근거로 임직원에게 친절하고 정확하게 답변해 주세요.
+            const memoryNote = userMemoryFacts.length > 0
+                ? `\n[사용자 누적 기억 프로필]\n${userMemoryFacts.map(f => "- " + f).join("\n")}`
+                : "";
 
-[답변 작성 핵심 규칙]
-1. 대화 맥락 유지: 사용자가 "총 여비가 얼마죠?", "그럼 서류는 뭐가 필요해요?"처럼 짧게 후속 질문을 하면, 반드시 직전 대화 주제(예: 사원 제주도 2박 3일 출장)를 이어서 답변하세요.
-2. 여비·금액 자동 계산: 출장 일수(예: 2박 3일), 직급(사원/임원), 지역(서울·제주·광역시 vs 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 항목별 금액과 총합을 정확히 계산해 주세요.
-   (예: 직원 제주도 2박 3일 기준 → 일비 25,000원×3일=75,000원 + 식비 30,000원×3일=90,000원 + 숙박비 상한 100,000원×2박=200,000원 = 최대 365,000원, 항공·철도 등 교통운임은 실비 별도 정산)
-3. 전 복지 분야 지원: 퇴직연금, 주택대부제도, 학자금대부, 기념품신청, 콘도, 단체상해보험, 동아리지원, 직장어린이집, 여비 및 인사·보수·평가·채용·교육·복무·해외근무 사규 전체를 지원합니다. 제공된 사규 자료에 전혀 없는 내용이라면 추측하지 말고 담당자 내선번호를 안내하세요:
+            const systemInstruction = `당신은 한국석유공사(KNOC) 복지팀 공식 '사내 복지제도 AI 상담 어시스턴트'입니다.
+제공된 [사규 자료]와 [이전 대화 기억]을 바탕으로 빠르고 정확하게 답변하세요.
+${memoryNote}
+
+[핵심 규칙]
+1. 이전 대화 기억 활용: 사용자가 과거에 질문했던 조건(예: 직급, 출장지, 박수, 대부유형, 연금유형 등)이나 직전 대화를 완벽히 기억하여 "총 여비가 얼마죠?", "아까 말한 조건으로 서류는 뭐예요?" 같은 질문에 맥락을 이어서 즉시 답변하세요.
+2. 여비·금액 자동 계산: 출장 기간(예: 2박 3일), 직급(사원/임원), 지역(서울·제주·광역시 vs 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 일비(25,000원/일)·식비(직원 30,000원/일)·숙박비 상한(서울·제주·광역시 100,000원/박, 기타 80,000원/박)을 곱해 합산 금액을 계산해 주세요(교통운임은 실비 별도).
+3. 사규 외 질문 안내: 자료에 전혀 없는 내용은 추측하지 말고 담당자 내선번호를 안내하세요:
 ${OUT_OF_SCOPE_FORMATTED}
-4. 할루시네이션(지어내기) 절대 금지: 제공된 사규 자료에 없는 금액, 기간, 비율, 예외 조항을 절대 추측하거나 창작하지 마세요.
-5. 명확한 구조화:
-   - 첫 문장에서 질문의 핵심 결론(가능 여부, 계산된 금액, 기한 등)을 두괄식으로 명확히 제시하세요.
-   - 세부 조건이나 계산 내역은 불릿(•) 기호로 깔끔하게 정리하고, 마크다운 기호(**, ##)는 쓰지 말고 일반 텍스트로 읽기 쉽게 작성하세요.
-   - 답변 마지막에는 반드시 [출처: 근거 사규 조항]과 해당 분야 복지팀 담당자 내선번호를 명시하세요.`;
+4. 출력 형식: 첫 문장에 핵심 결론을 두괄식으로 제시하고, 불릿(•)으로 깔끔하게 정리하세요(마크다운 **, ## 기호 사용 금지). 마지막 줄에 [출처: 근거 조항]과 담당자 내선번호를 반드시 적으세요.`;
 
+            const recentHistory = chatHistory.slice(-12);
             const contents = [
-                ...chatHistory.slice(-4),
+                ...recentHistory,
                 {
                     role: "user",
                     parts: [{
-                        text: `[한국석유공사 사규 및 복지팀 승인 FAQ 자료]\n${statutesContext}\n\n[임직원 질문]\n${userQuery}`
+                        text: `[사규 자료]\n${statutesContext}\n\n[질문]\n${userQuery}`
                     }]
                 }
             ];
 
-            const requestPayload = JSON.stringify({
+            // Gemini 3.8 Flash 공식 규격: thinkingConfig.thinkingLevel = "low" (추론 지연 최소화)
+            const isGemini3Or4 = fixedModel.startsWith("gemini-3") || fixedModel.startsWith("gemini-4");
+            const genConfig = {
+                maxOutputTokens: 1000
+            };
+            if (isGemini3Or4) {
+                genConfig.thinkingConfig = { thinkingLevel: "low" };
+            } else {
+                genConfig.temperature = 0.15;
+                genConfig.thinkingConfig = { thinkingBudget: 0 };
+            }
+
+            const payload = JSON.stringify({
                 system_instruction: { parts: [{ text: systemInstruction }] },
                 contents: contents,
-                generationConfig: {
-                    temperature: 0.15,
-                    maxOutputTokens: 1200
-                }
+                generationConfig: genConfig
             });
 
-            async function requestModel(targetModel) {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-                return await fetch(url, {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 14000);
+
+            try {
+                const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fixedModel)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
+                const res = await fetch(streamUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: requestPayload
+                    body: payload,
+                    signal: controller.signal
                 });
-            }
+                clearTimeout(timeoutId);
 
-            // 가장 안정적인 최신 모델 순으로 자동 우회 (503 High Demand / 429 발생 시 즉시 다음 모델 호출)
-            const fallbackChain = [
-                primaryModel,
-                "gemini-2.5-flash",
-                "gemini-2.0-flash",
-                "gemini-2.5-flash-lite",
-                "gemini-flash-latest"
-            ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
-
-            let response = null;
-            let lastErrMsg = "";
-            let usedModel = primaryModel;
-
-            for (const candidateModel of fallbackChain) {
-                try {
-                    const res = await requestModel(candidateModel);
-                    if (res.ok) {
-                        response = res;
-                        usedModel = candidateModel;
-                        break;
-                    }
+                if (!res.ok) {
                     const errJson = await res.json().catch(() => ({}));
-                    lastErrMsg = errJson?.error?.message || `HTTP ${res.status} 오류`;
-                    // API 키 자체 오류(400 API_KEY_INVALID, 403)인 경우에는 즉시 중단
-                    if (res.status === 400 && lastErrMsg.toLowerCase().includes("api key")) {
-                        throw new Error(lastErrMsg);
-                    }
-                } catch (networkErr) {
-                    lastErrMsg = networkErr.message || "네트워크 오류";
-                    if (lastErrMsg.toLowerCase().includes("api key")) throw networkErr;
+                    const errMsg = errJson?.error?.message || `HTTP ${res.status} 오류`;
+                    throw new Error(errMsg);
                 }
-            }
 
-            // 만약 위 체인 모델이 모두 실패한 경우 실시간 가용 모델 목록을 조회하여 마지막 재시도
-            if (!response) {
-                try {
-                    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
-                    if (listRes.ok) {
-                        const listData = await listRes.json();
-                        const availableFlash = (listData.models || [])
-                            .filter(m => (m.supportedGenerationMethods || []).includes("generateContent") && m.name.includes("gemini"))
-                            .map(m => m.name.replace("models/", ""))
-                            .filter(m => !fallbackChain.includes(m));
-                        for (const dynModel of availableFlash.slice(0, 3)) {
-                            const res = await requestModel(dynModel);
-                            if (res.ok) {
-                                response = res;
-                                usedModel = dynModel;
-                                break;
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    buffer = lines.pop() || "";
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed.startsWith("data:")) continue;
+                        const dataStr = trimmed.slice(5).trim();
+                        if (!dataStr || dataStr === "[DONE]") continue;
+                        try {
+                            const chunkJson = JSON.parse(dataStr);
+                            const parts = chunkJson?.candidates?.[0]?.content?.parts || [];
+                            for (const p of parts) {
+                                if (p.text && !p.thought) {
+                                    fullText += p.text;
+                                    const cleanedLive = fullText.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "");
+                                    onChunkUpdate(cleanedLive);
+                                }
                             }
-                        }
+                        } catch (parseErr) {}
                     }
-                } catch (e) {}
+                }
+
+                const finalReply = fullText.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
+                if (!finalReply) {
+                    throw new Error("빈 응답이 반환되었습니다.");
+                }
+
+                chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
+                chatHistory.push({ role: "model", parts: [{ text: finalReply }] });
+                savePersistentMemory();
+
+                return finalReply;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                throw err;
             }
-
-            if (!response) {
-                throw new Error(lastErrMsg || "AI 모델 응답 지연");
-            }
-
-            const result = await response.json();
-            let reply = result?.candidates?.[0]?.content?.parts?.[0]?.text || "답변을 생성하지 못했습니다.";
-            reply = reply.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
-
-            chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
-            chatHistory.push({ role: "model", parts: [{ text: reply }] });
-
-            return reply;
         }
 
-        /* 9. 채팅 메시지 렌더링 및 양식 다운로드 버튼 자동 부착 */
+        /* 9. 채팅 메시지 렌더링, 영구 기억 복원 및 실시간 스트리밍 출력 */
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
 
-        function appendMessage(role, text, matchedItem, originalQuery) {
+        function appendMessage(role, text, matchedItem, originalQuery, skipScroll) {
             const row = document.createElement('div');
             row.className = `message-row ${role}`;
 
@@ -3329,7 +3394,7 @@ ${OUT_OF_SCOPE_FORMATTED}
 
                 const sender = document.createElement('span');
                 sender.className = 'sender-name';
-                sender.textContent = getSavedApiKey() ? 'KNOC AI 어시스턴트 (Gemini)' : 'KNOC';
+                sender.textContent = getSavedApiKey() ? `KNOC AI 어시스턴트 (${getSavedModel()})` : 'KNOC';
 
                 const bubble = document.createElement('div');
                 bubble.className = 'bubble';
@@ -3359,9 +3424,9 @@ ${OUT_OF_SCOPE_FORMATTED}
                         </button>`;
                 }
 
-                if (!matchedItem) {
+                if (matchedItem === null && originalQuery) {
                     hasButtons = true;
-                    const safeQ = (originalQuery || '').replace(/'/g, "\\'");
+                    const safeQ = (originalQuery || '').replace(/'/g, "\'");
                     docBox.innerHTML += `
                         <button type="button" class="doc-btn survey-btn" onclick="openSurveyWithQuestion('${safeQ}')">
                             📝 구글 폼(설문 폼)으로 이 질문 접수하기
@@ -3374,6 +3439,9 @@ ${OUT_OF_SCOPE_FORMATTED}
 
                 row.appendChild(avatar);
                 row.appendChild(content);
+                row._bubbleEl = bubble;
+                row._docBoxEl = docBox;
+                row._contentEl = content;
             } else {
                 const content = document.createElement('div');
                 content.className = 'message-content';
@@ -3385,8 +3453,25 @@ ${OUT_OF_SCOPE_FORMATTED}
             }
 
             chatMessages.appendChild(row);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            if (!skipScroll) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
             return row;
+        }
+
+        function restorePreviousChatMessages() {
+            if (!chatHistory || chatHistory.length === 0) return;
+            const divider = document.createElement('div');
+            divider.style.cssText = "text-align:center; font-size:12px; color:#64748b; background:#e2e8f0; padding:5px 12px; border-radius:999px; align-self:center; font-weight:700;";
+            divider.textContent = `🧠 이전 대화 기억이 복원되었습니다 (총 ${Math.floor(chatHistory.length / 2)}건의 대화)`;
+            chatMessages.appendChild(divider);
+
+            for (const msg of chatHistory) {
+                const text = msg?.parts?.[0]?.text || "";
+                if (!text) continue;
+                appendMessage(msg.role === "user" ? "user" : "assistant", text, undefined, null, true);
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         async function handleSendQuery(customText) {
@@ -3397,10 +3482,14 @@ ${OUT_OF_SCOPE_FORMATTED}
                 userInput.value = '';
             }
 
+            extractUserFactsFromQuery(q);
             appendMessage('user', q, null, q);
 
-            const searchRes = scoreAllItems(q);
-            const topCandidates = searchRes.ranked.slice(0, 16).map(r => r.item);
+            const lastUserMsg = [...chatHistory].reverse().find(m => m.role === "user")?.parts?.[0]?.text || "";
+            const enrichedQueryForSearch = q.length <= 18 && lastUserMsg ? `${lastUserMsg} ${q}` : q;
+
+            const searchRes = scoreAllItems(enrichedQueryForSearch);
+            const topCandidates = searchRes.ranked.slice(0, 10).map(r => r.item);
             const bestMatched = (!searchRes.isOutOfDomain && searchRes.ranked.length > 0 && searchRes.ranked[0].score >= 45)
                 ? searchRes.ranked[0].item
                 : null;
@@ -3408,39 +3497,47 @@ ${OUT_OF_SCOPE_FORMATTED}
 
             const apiKey = getSavedApiKey();
 
-            /* API 키가 미설정된 경우 또는 첫 질문이면서 추천 버튼/표준 FAQ 완전 일치(점수 450점 이상)인 경우만 즉시 응답 */
-            const isExactFaqHit = chatHistory.length === 0 && bestMatched && (
-                searchRes.ranked[0].score >= 450 ||
-                normalizeKo(bestMatched.q).replace(/\s+/g, "") === normalizeKo(q).replace(/\s+/g, "")
-            );
-
-            if (!apiKey || isExactFaqHit) {
+            if (!apiKey) {
                 const answer = buildConversationalResponse(q, bestMatched);
+                chatHistory.push({ role: "user", parts: [{ text: q }] });
+                chatHistory.push({ role: "model", parts: [{ text: answer }] });
+                savePersistentMemory();
                 setTimeout(() => {
                     appendMessage('assistant', answer, bestMatched, q);
-                }, 80);
+                }, 60);
                 return;
             }
 
-            if (searchRes.isOutOfDomain) {
+            if (searchRes.isOutOfDomain && chatHistory.length === 0) {
+                chatHistory.push({ role: "user", parts: [{ text: q }] });
+                chatHistory.push({ role: "model", parts: [{ text: OUT_OF_SCOPE_FORMATTED }] });
+                savePersistentMemory();
                 setTimeout(() => {
                     appendMessage('assistant', OUT_OF_SCOPE_FORMATTED, null, q);
-                }, 80);
+                }, 60);
                 return;
             }
 
-            /* Gemini 생성형 AI 호출 (다중 모델 자동 우회 포함) */
-            const loadingRow = appendMessage('assistant', '⏳ 한국석유공사 복지 사규 및 승인 FAQ를 분석하여 답변을 작성하고 있습니다...', bestMatched, q);
+            const liveRow = appendMessage('assistant', '⚡ 답변 생성 중...', attachMatched, q);
             try {
-                const aiReply = await callGeminiWithStatutes(q, topCandidates, apiKey);
-                loadingRow.remove();
-                const isOutReply = aiReply.includes("문의하신 내용에 대한 정확한 세부 사항은 아래 업무별 담당자에게 문의 부탁드립니다");
-                appendMessage('assistant', aiReply, isOutReply ? null : attachMatched, q);
+                const aiReply = await callGeminiWithStatutesStreaming(q, topCandidates, apiKey, (partialText) => {
+                    if (liveRow._bubbleEl) {
+                        liveRow._bubbleEl.textContent = partialText;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                });
+                if (liveRow._bubbleEl) {
+                    liveRow._bubbleEl.textContent = aiReply;
+                }
             } catch (err) {
-                loadingRow.remove();
+                liveRow.remove();
                 const fallbackAnswer = buildConversationalResponse(q, bestMatched);
-                const notice = `⚠️ [AI 모델 일시 혼잡 안내: ${err.message}]\n현재 Google AI 서버 응답 지연으로 사규 원문 검색 결과를 우선 안내해 드립니다.\n\n`;
-                appendMessage('assistant', notice + fallbackAnswer, bestMatched, q);
+                const notice = `⚠️ [${getSavedModel()} 호출 오류: ${err.message}]\n일시적인 요청 집중 또는 네트워크 지연으로 사규 원문 검색 결과를 우선 안내합니다.\n\n`;
+                const finalFallback = notice + fallbackAnswer;
+                chatHistory.push({ role: "user", parts: [{ text: q }] });
+                chatHistory.push({ role: "model", parts: [{ text: finalFallback }] });
+                savePersistentMemory();
+                appendMessage('assistant', finalFallback, bestMatched, q);
             }
         }
 
@@ -3459,7 +3556,10 @@ ${OUT_OF_SCOPE_FORMATTED}
             });
         });
 
-        const surveyRecords = [];
+        loadPersistentMemory();
+        restorePreviousChatMessages();
+
+                const surveyRecords = [];
 
         function openSurveyWithQuestion(qText) {
             switchPortalTab('survey');
