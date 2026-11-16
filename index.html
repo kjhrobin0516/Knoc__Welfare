@@ -3164,7 +3164,7 @@
 
                 if (item.id === "STAT_TR_DIST" && (compactQ.includes("거리") || compactQ.includes("근거리") || compactQ.includes("40km") || compactQ.includes("15km") || compactQ.includes("30km") || compactQ.includes("2km"))) score += 300;
                 if (item.id === "STAT_TR_LONG" && ((compactQ.includes("장기출장") || compactQ.includes("장기체재")) || (compactQ.includes("일비") && compactQ.includes("감액") && !compactQ.includes("공용차량")))) score += 300;
-                if (item.id === "STAT_TR_DOM" && (compactQ.includes("친지") || compactQ.includes("공용차량") || ((compactQ.includes("일비") || compactQ.includes("식비") || compactQ.includes("숙박비") || compactQ.includes("여비")) && (compactQ.includes("얼마") || compactQ.includes("단가") || compactQ.includes("상한") || compactQ.includes("한도") || compactQ.includes("기준") || compactQ.includes("국내") || compactQ.includes("제주") || compactQ.includes("출장"))))) score += 280;
+                if (item.id === "STAT_TR_DOM" && (compactQ.includes("친지") || compactQ.includes("공용차량") || ((compactQ.includes("일비") || compactQ.includes("식비") || compactQ.includes("숙박비") || compactQ.includes("여비")) && (compactQ.includes("얼마") || compactQ.includes("단가") || compactQ.includes("상한") || compactQ.includes("한도") || compactQ.includes("기준") || compactQ.includes("국내") || compactQ.includes("제주") || compactQ.includes("출장") || compactQ.includes("박"))))) score += 420;
                 if (item.id === "STAT_TR_OVERSEAS" && ((compactQ.includes("국외여비") || compactQ.includes("해외여비") || compactQ.includes("가등급") || compactQ.includes("나등급") || compactQ.includes("다등급")) || ((compactQ.includes("국외") || compactQ.includes("해외")) && (compactQ.includes("일비") || compactQ.includes("숙박비") || compactQ.includes("식비") || compactQ.includes("단가"))))) score += 260;
                 if (item.id === "STAT_TR_MOVE" && (compactQ.includes("이전료") || compactQ.includes("이사화물") || compactQ.includes("5톤") || compactQ.includes("75톤") || compactQ.includes("가족여비"))) score += 260;
                 if ((item.id === "STAT_HL_02" || item.id === "STAT_HL_03") && (compactQ.includes("임차주택") || compactQ.includes("임차사택") || compactQ.includes("기준가") || compactQ.includes("단신부임") || compactQ.includes("울산지사") || compactQ.includes("거제지사") || compactQ.includes("평택지사") || compactQ.includes("서산지사") || compactQ.includes("여수지사") || compactQ.includes("곡성지사") || compactQ.includes("동해지사"))) score += 260;
@@ -3249,7 +3249,6 @@
         async function callGeminiWithStatutesStreaming(userQuery, candidateItems, apiKey, onChunkUpdate) {
             const fixedModel = getSavedModel(); // 기본값: gemini-3.8-flash
 
-            // 속도 최적화를 위해 상위 7개 핵심 후보 + 핵심 단가 조항만 간결하게 포함 (총 10개 이내)
             const contextItems = [...candidateItems.slice(0, 7)];
             const coreIds = ["STAT_TR_DOM", "STAT_TR_OVERSEAS", "STAT_HL_01", "STAT_SL_01"];
             coreIds.forEach(cid => {
@@ -3273,7 +3272,7 @@ ${memoryNote}
 
 [핵심 규칙]
 1. 이전 대화 기억 활용: 사용자가 과거에 질문했던 조건(예: 직급, 출장지, 박수, 대부유형, 연금유형 등)이나 직전 대화를 완벽히 기억하여 "총 여비가 얼마죠?", "아까 말한 조건으로 서류는 뭐예요?" 같은 질문에 맥락을 이어서 즉시 답변하세요.
-2. 여비·금액 자동 계산: 출장 기간(예: 2박 3일), 직급(사원/임원), 지역(서울·제주·광역시 vs 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 일비(25,000원/일)·식비(직원 30,000원/일)·숙박비 상한(서울·제주·광역시 100,000원/박, 기타 80,000원/박)을 곱해 합산 금액을 계산해 주세요(교통운임은 실비 별도).
+2. 여비·금액 자동 계산: 출장 기간(예: 2박 3일, 3박 4일), 직급(사원/임원), 지역(서울·제주·광역시 vs 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 일비(25,000원/일)·식비(직원 30,000원/일)·숙박비 상한(서울·제주·광역시 100,000원/박, 기타 80,000원/박)을 곱해 합산 금액을 계산해 주세요(교통운임은 실비 별도).
 3. 사규 외 질문 안내: 자료에 전혀 없는 내용은 추측하지 말고 담당자 내선번호를 안내하세요:
 ${OUT_OF_SCOPE_FORMATTED}
 4. 출력 형식: 첫 문장에 핵심 결론을 두괄식으로 제시하고, 불릿(•)으로 깔끔하게 정리하세요(마크다운 **, ## 기호 사용 금지). 마지막 줄에 [출처: 근거 조항]과 담당자 내선번호를 반드시 적으세요.`;
@@ -3289,7 +3288,6 @@ ${OUT_OF_SCOPE_FORMATTED}
                 }
             ];
 
-            // Gemini 3.8 Flash 공식 규격: thinkingConfig.thinkingLevel = "low" (추론 지연 최소화)
             const isGemini3Or4 = fixedModel.startsWith("gemini-3") || fixedModel.startsWith("gemini-4");
             const genConfig = {
                 maxOutputTokens: 1000
@@ -3307,8 +3305,9 @@ ${OUT_OF_SCOPE_FORMATTED}
                 generationConfig: genConfig
             });
 
+            // 타임아웃 45초로 넉넉히 설정하고, 응답 헤더 도착 즉시 타이머 해제하여 스트리밍 중 끊김 방지
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 14000);
+            const timeoutId = setTimeout(() => controller.abort("응답 대기 시간(45초) 초과"), 45000);
 
             try {
                 const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fixedModel)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
@@ -3369,6 +3368,35 @@ ${OUT_OF_SCOPE_FORMATTED}
                 return finalReply;
             } catch (err) {
                 clearTimeout(timeoutId);
+                // 스트리밍 연결이 끊겼을 경우 일반 generateContent 엔드포인트로 1회 즉시 재시도
+                try {
+                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fixedModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                    const res2 = await fetch(fallbackUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: payload
+                    });
+                    if (res2.ok) {
+                        const data2 = await res2.json();
+                        const parts2 = data2?.candidates?.[0]?.content?.parts || [];
+                        const text2 = parts2.filter(p => p.text && !p.thought).map(p => p.text).join("");
+                        const cleaned2 = text2.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
+                        if (cleaned2) {
+                            onChunkUpdate(cleaned2);
+                            chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
+                            chatHistory.push({ role: "model", parts: [{ text: cleaned2 }] });
+                            savePersistentMemory();
+                            return cleaned2;
+                        }
+                    } else {
+                        const errJson2 = await res2.json().catch(() => ({}));
+                        if (errJson2?.error?.message) {
+                            throw new Error(errJson2.error.message);
+                        }
+                    }
+                } catch (retryErr) {
+                    throw retryErr;
+                }
                 throw err;
             }
         }
