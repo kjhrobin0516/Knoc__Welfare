@@ -1717,14 +1717,14 @@
             </p>
             <label style="display:block; font-size:12px; font-weight:700; color:#1e293b; margin-bottom:6px;">Gemini API Key</label>
             <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy... 로 시작하는 API 키를 붙여넣으세요" style="width:100%; padding:10px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13.5px; margin-bottom:12px; outline:none;">
-            <label style="display:block; font-size:12px; font-weight:700; color:#1e293b; margin-bottom:6px;">사용 모델 (Gemini 3.8 Flash 기본 고정)</label>
+            <label style="display:block; font-size:12px; font-weight:700; color:#1e293b; margin-bottom:6px;">사용 모델 (Tier 1 답변 품질 최우선 · 정밀 추론 모드)</label>
             <select id="geminiModelSelect" onchange="toggleCustomModelInput()" style="width:100%; padding:9px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; margin-bottom:10px; background:#f8fafc;">
-                <option value="gemini-3.8-flash">gemini-3.8-flash (기본 고정 · 최신 고성능 모델 + 사고수준 LOW 초고속 최적화)</option>
-                <option value="gemini-3.6-flash">gemini-3.6-flash (안정형 보조 모델)</option>
-                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (초경량 초고속 모델)</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash (기본 권장 · 전체 사규 무손실 분석 + 정밀 추론 활성화)</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro (최고난도 복합 규정·금액 산출용 Pro 정밀 모델)</option>
+                <option value="gemini-flash-latest">gemini-flash-latest (최신 Flash 정식 버전 자동 연결)</option>
                 <option value="custom">직접 모델명 입력</option>
             </select>
-            <input type="text" id="customModelInput" placeholder="예: gemini-3.8-flash" style="display:none; width:100%; padding:9px 12px; border:1.5px solid #93c5fd; border-radius:8px; font-size:13px; margin-bottom:14px; background:#eff6ff; outline:none;">
+            <input type="text" id="customModelInput" placeholder="예: gemini-2.5-pro" style="display:none; width:100%; padding:9px 12px; border:1.5px solid #93c5fd; border-radius:8px; font-size:13px; margin-bottom:14px; background:#eff6ff; outline:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                 <button type="button" onclick="clearApiKey()" style="padding:8px 12px; border:1px solid #fecaca; background:#fef2f2; color:#dc2626; border-radius:8px; cursor:pointer; font-weight:700; font-size:12.5px;">키 삭제</button>
                 <div style="display:flex; gap:8px;">
@@ -2935,11 +2935,11 @@
         ];
 
         /* =========================================================================
-           6. 사규 검색(Retrieval) + 영구 대화 기억(Memory) + Gemini 3.8 Flash 스트리밍 엔진
+           6. 사규 전체 무손실 주입(Full-Context) + 영구 대화 기억(Memory) + Tier 1 정밀 추론 엔진
            ========================================================================= */
         const MEMORY_STORAGE_KEY = "KNOC_AI_PERSISTENT_MEMORY_V1";
         const PROFILE_STORAGE_KEY = "KNOC_AI_USER_PROFILE_V1";
-        const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+        const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 
         let chatHistory = [];
         let userMemoryFacts = [];
@@ -3020,7 +3020,8 @@
 
         function getSavedModel() {
             const saved = (localStorage.getItem("KNOC_GEMINI_MODEL") || "").trim();
-            if (!saved || saved.startsWith("gemini-2.")) {
+            // 미지원/불안정 3.8 저장값은 가장 정확한 Tier 1 정식 모델(gemini-2.5-flash)로 자동 보정
+            if (!saved || saved.includes("3.8")) {
                 return DEFAULT_GEMINI_MODEL;
             }
             return saved;
@@ -3045,13 +3046,13 @@
             if (key) {
                 if (dot) dot.style.background = "#22c55e";
                 if (mDot) mDot.style.background = "#22c55e";
-                if (text) text.innerHTML = `<strong>생성형 AI 모드 고정 (${model} · 초고속 스트리밍 + 대화기억)</strong>`;
+                if (text) text.innerHTML = `<strong>Tier 1 고정밀 AI 모드 작동 중 (${model} · 사규 100% 전체 대조 + 정밀 추론)</strong>`;
                 if (btn) btn.textContent = "🔑 API 키 변경/확인";
-                if (mTxt) mTxt.textContent = "3.8 활성";
+                if (mTxt) mTxt.textContent = "정밀AI 활성";
             } else {
                 if (dot) dot.style.background = "#f59e0b";
                 if (mDot) mDot.style.background = "#f59e0b";
-                if (text) text.innerHTML = "<strong>기본 검색 모드 작동 중</strong> — 우측 [🔑 Google AI API 키 설정] 입력 시 Gemini 3.8 AI가 활성화됩니다";
+                if (text) text.innerHTML = "<strong>기본 검색 모드 작동 중</strong> — 우측 [🔑 Google AI API 키 설정] 입력 시 고정밀 AI가 활성화됩니다";
                 if (btn) btn.textContent = "🔑 Google AI API 키 설정";
                 if (mTxt) mTxt.textContent = "AI 키 설정";
             }
@@ -3064,7 +3065,7 @@
             const customInp = document.getElementById("customModelInput");
 
             document.getElementById("geminiApiKeyInput").value = getSavedApiKey();
-            if (["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"].includes(savedModel)) {
+            if (["gemini-2.5-flash", "gemini-2.5-pro", "gemini-flash-latest"].includes(savedModel)) {
                 sel.value = savedModel;
                 customInp.style.display = "none";
             } else {
@@ -3093,7 +3094,7 @@
             localStorage.setItem("KNOC_GEMINI_MODEL", model);
             closeApiKeyModal();
             checkApiKeyStatus();
-            alert(`Google AI Studio API 키와 모델(${model})이 고정 저장되었습니다.`);
+            alert(`Google AI Studio API 키와 모델(${model})이 저장되었습니다. 전체 사규 무손실 대조 모드로 작동합니다.`);
         }
 
         function clearApiKey() {
@@ -3245,60 +3246,73 @@
             return `${body}\n\n[출처: ${item.s}]\n${footer}`;
         }
 
-        /* 8. Google AI Studio (Gemini 3.8 Flash 우선 + 초고속 자동 우회 + 대화 기억 엔진) */
-        async function callGeminiWithStatutes(userQuery, candidateItems, apiKey) {
-            const primaryModel = getSavedModel(); // 기본값: gemini-3.8-flash
+        /* 전체 사규 및 승인 FAQ 100% 무손실 직렬화 (캐싱) */
+        let CACHED_FULL_KNOWLEDGE_BASE = "";
+        function getFullKnowledgeBaseText() {
+            if (CACHED_FULL_KNOWLEDGE_BASE) return CACHED_FULL_KNOWLEDGE_BASE;
+            CACHED_FULL_KNOWLEDGE_BASE = KNOC_DB.map((it, idx) => {
+                const note = it.prompt ? ` | 유의사항:${it.prompt}` : "";
+                return `[#${idx + 1} | 분야:${it.sheet} | 분류:${it.cat}]
+질문: ${it.q}
+규정/답변: ${it.a}
+근거: ${it.s}${note}`;
+            }).join("\n---\n");
+            return CACHED_FULL_KNOWLEDGE_BASE;
+        }
 
-            const contextItems = [...candidateItems.slice(0, 7)];
-            const coreIds = ["STAT_TR_DOM", "STAT_TR_OVERSEAS", "STAT_HL_01", "STAT_SL_01"];
-            coreIds.forEach(cid => {
-                if (!contextItems.some(c => c.id === cid)) {
-                    const found = KNOC_DB.find(d => d.id === cid);
-                    if (found) contextItems.push(found);
-                }
-            });
+        /* 8. Google AI Studio (Tier 1 답변 품질 최우선 · 전체 사규 무손실 대조 + 정밀 추론 엔진) */
+        async function callGeminiWithStatutes(userQuery, apiKey) {
+            const primaryModel = getSavedModel(); // 기본값: gemini-2.5-flash
 
-            const statutesContext = contextItems.slice(0, 10).map((it, i) => {
-                return `[자료${i + 1}|${it.sheet}-${it.cat}] Q:${it.q} / A:${it.a} (근거:${it.s}, 내선:${getDeptFooter(it.sheet)})`;
-            }).join("\n");
+            const fullKnowledgeBase = getFullKnowledgeBaseText();
 
             const memoryNote = userMemoryFacts.length > 0
                 ? `\n[사용자 누적 기억 프로필]\n${userMemoryFacts.map(f => "- " + f).join("\n")}`
                 : "";
 
-            const systemInstruction = `당신은 한국석유공사(KNOC) 복지팀 공식 '사내 복지제도 AI 상담 어시스턴트'입니다.
-제공된 [사규 자료]와 [이전 대화 기억]을 바탕으로 빠르고 정확하게 답변하세요.
+            const systemInstruction = `당신은 한국석유공사(KNOC) 인사복지처 복지팀의 공식 '사내 복지제도 AI 상담 어시스턴트'입니다.
+당신에게는 한국석유공사의 사규 원문 및 복지팀 승인 FAQ 전체 데이터베이스가 100% 제공되어 있습니다.
+사용자의 질문 의도와 숨은 조건까지 정밀하게 분석하여, 실무 담당자 수준으로 가장 정확하고 친절한 맞춤형 답변을 제공하세요.
 ${memoryNote}
 
-[핵심 규칙]
-1. 이전 대화 기억 활용: 사용자가 과거에 질문했던 조건(예: 직급, 출장지, 박수, 대부유형, 연금유형 등)이나 직전 대화를 완벽히 기억하여 "총 여비가 얼마죠?", "아까 말한 조건으로 서류는 뭐예요?" 같은 질문에 맥락을 이어서 즉시 답변하세요.
-2. 여비·금액 자동 계산: 출장 기간(예: 1박 2일, 2박 3일, 3박 4일), 직급(사원/팀장/임원), 지역(서울·세종·제주·광역시 vs 여수 등 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 일비(25,000원/일)·식비(직원 30,000원/일, 임원 35,000원/일)·숙박비 상한(서울·세종·제주·광역시 100,000원/박, 기타 지역 80,000원/박)을 곱해 항목별 금액과 총합을 정확히 계산해 주세요(교통운임은 실비 별도).
-3. 사규 외 질문 안내: 자료에 전혀 없는 내용은 추측하지 말고 담당자 내선번호를 안내하세요:
+[답변 품질 및 정확성 최우선 원칙]
+1. 전수 대조 및 정확한 산출:
+   - 제공된 [한국석유공사 전체 사규 및 FAQ 데이터베이스]의 모든 조항과 예외 규정(직급 구분, 지역 등급, 공용차량 감액, 식사 제공 공제, 근속연수, 전용면적 85㎡ 한도, 무주택 특례, 26.10월 개정 기준 등)을 빠짐없이 대조하세요.
+   - 금액·기간·횟수 계산이 필요한 질문(예: "팀장 혼자서 여수로 1박 2일 출장시 총 여비는?", "사원 제주도 3박 4일 여비")은 반드시 단계별로 정확히 계산하고 총합을 명시하세요.
+     * 참고: 국내여비표상 '팀장'은 임원이 아닌 '직원' 기준(일비 25,000원/일, 식비 30,000원/일, 숙박비 상한: 서울·세종·제주·광역시 100,000원/박, 여수 등 기타 지역 80,000원/박, 교통운임 실비 별도)이 적용됩니다.
+2. 이전 대화 기억 완벽 승계:
+   - 사용자가 이전 질문에서 언급한 조건이나 직전 대화 주제를 끝까지 기억하여, "총 여비가 얼마죠?", "거기서 공용차량 타면요?", "필요 서류는 뭐예요?" 같은 연속 질문에도 앞선 조건을 그대로 이어받아 답변하세요.
+3. 실무 중심 답변 구조화 (사용자가 원하는 답을 한눈에 파악하도록 구성):
+   - [핵심 결론]: 첫 1~2문장에서 질문에 대한 직접적인 정답(가능/불가능 여부, 최종 산출 금액, 핵심 기준)을 두괄식으로 명확히 제시하세요.
+   - [세부 기준 및 산출 내역]: 항목별 단가, 계산식, 적용 조건, 신청 절차를 불릿(•) 기호로 깔끔하게 정리하세요.
+   - [예외 및 실무 유의사항]: 규정상 놓치기 쉬운 예외 조항, 감액 사유, 제출 서류, 기한(예: 10근무일 이내 정산, 1개월 이내 신고 등)을 반드시 챙겨서 안내하세요.
+   - [출처 및 담당자]: 마지막 줄에는 반드시 [출처: 정확한 사규명 및 조항]과 해당 업무 담당자 내선번호를 명시하세요.
+4. 사규 외 질문 처리:
+   - 제공된 사규 데이터에 전혀 없는 사안이라면 절대 추측하거나 지어내지 말고 아래 담당자 내선번호 안내문을 출력하세요:
 ${OUT_OF_SCOPE_FORMATTED}
-4. 출력 형식: 첫 문장에 핵심 결론을 두괄식으로 제시하고, 불릿(•)으로 깔끔하게 정리하세요(마크다운 **, ## 기호 사용 금지). 마지막 줄에 [출처: 근거 조항]과 담당자 내선번호를 반드시 적으세요.`;
+5. 서식 주의: 마크다운 강조 기호(**, ##)는 사용하지 말고, 일반 텍스트와 불릿(•) 기호로 가독성 높게 작성하세요.`;
 
-            const recentHistory = chatHistory.slice(-12);
+            const recentHistory = chatHistory.slice(-14);
             const contents = [
                 ...recentHistory,
                 {
                     role: "user",
                     parts: [{
-                        text: `[사규 자료]\n${statutesContext}\n\n[질문]\n${userQuery}`
+                        text: `[한국석유공사 전체 사규 및 FAQ 데이터베이스]\n${fullKnowledgeBase}\n\n========================================\n[임직원 질문]\n${userQuery}`
                     }]
                 }
             ];
 
             function buildPayloadForModel(targetModel) {
                 const genConfig = {
-                    maxOutputTokens: 1000
+                    temperature: 0.1,
+                    maxOutputTokens: 2048
                 };
-                if (targetModel.startsWith("gemini-3") || targetModel.startsWith("gemini-4")) {
-                    genConfig.thinkingConfig = { thinkingLevel: "low" };
-                } else if (targetModel.startsWith("gemini-2.5")) {
-                    genConfig.temperature = 0.15;
-                    genConfig.thinkingConfig = { thinkingBudget: 0 };
-                } else {
-                    genConfig.temperature = 0.15;
+                // Tier 1 품질 최우선: 정밀 계산과 예외 조항 분석을 위해 추론(Thinking) 예산을 충분히 부여
+                if (targetModel.startsWith("gemini-2.5")) {
+                    genConfig.thinkingConfig = { thinkingBudget: 2048 };
+                } else if (targetModel.startsWith("gemini-3") || targetModel.startsWith("gemini-4")) {
+                    genConfig.thinkingConfig = { thinkingLevel: "medium" };
                 }
                 return JSON.stringify({
                     system_instruction: { parts: [{ text: systemInstruction }] },
@@ -3307,46 +3321,32 @@ ${OUT_OF_SCOPE_FORMATTED}
                 });
             }
 
-            async function fetchWithTimeout(targetModel, timeoutMs) {
-                const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), timeoutMs);
-                try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-                    const res = await fetch(url, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: buildPayloadForModel(targetModel),
-                        signal: controller.signal
-                    });
-                    clearTimeout(timer);
-                    return res;
-                } catch (e) {
-                    clearTimeout(timer);
-                    if (e && e.name === "AbortError") {
-                        throw new Error(`${targetModel} 응답 시간(${Math.round(timeoutMs / 1000)}초) 초과`);
-                    }
-                    throw e;
-                }
+            async function requestGeminiModel(targetModel) {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                return await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: buildPayloadForModel(targetModel)
+                });
             }
 
-            // 1순위: 사용자가 설정한 gemini-3.8-flash (8초 제한) -> 지연·혼잡 시 초고속 안정 모델로 즉시 자동 우회
+            // Tier 1 정밀 추론 체인: gemini-2.5-flash -> gemini-2.5-pro -> gemini-flash-latest
             const candidateChain = [
-                { model: primaryModel, timeout: 8000 },
-                { model: "gemini-2.5-flash", timeout: 12000 },
-                { model: "gemini-flash-latest", timeout: 12000 },
-                { model: "gemini-2.0-flash", timeout: 12000 }
-            ].filter((item, idx, arr) => item.model && arr.findIndex(x => x.model === item.model) === idx);
+                primaryModel,
+                "gemini-2.5-flash",
+                "gemini-2.5-pro",
+                "gemini-flash-latest"
+            ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
             let lastError = null;
 
-            for (const entry of candidateChain) {
+            for (const modelName of candidateChain) {
                 try {
-                    const res = await fetchWithTimeout(entry.model, entry.timeout);
+                    const res = await requestGeminiModel(modelName);
                     if (!res.ok) {
                         const errJson = await res.json().catch(() => ({}));
                         const errMsg = errJson?.error?.message || `HTTP ${res.status} 오류`;
-                        lastError = new Error(`${entry.model}: ${errMsg}`);
-                        // API 키 자체 오류면 즉시 중단
+                        lastError = new Error(`${modelName}: ${errMsg}`);
                         if (res.status === 400 && errMsg.toLowerCase().includes("api key")) {
                             throw lastError;
                         }
@@ -3359,7 +3359,7 @@ ${OUT_OF_SCOPE_FORMATTED}
                     const cleaned = rawText.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
 
                     if (!cleaned) {
-                        lastError = new Error(`${entry.model}: 빈 응답 반환`);
+                        lastError = new Error(`${modelName}: 빈 응답 반환`);
                         continue;
                     }
 
@@ -3367,7 +3367,7 @@ ${OUT_OF_SCOPE_FORMATTED}
                     chatHistory.push({ role: "model", parts: [{ text: cleaned }] });
                     savePersistentMemory();
 
-                    return { reply: cleaned, usedModel: entry.model };
+                    return { reply: cleaned, usedModel: modelName };
                 } catch (err) {
                     lastError = err;
                     if (err.message && err.message.toLowerCase().includes("api key")) {
@@ -3376,7 +3376,7 @@ ${OUT_OF_SCOPE_FORMATTED}
                 }
             }
 
-            throw lastError || new Error("모든 AI 모델 응답 지연");
+            throw lastError || new Error("AI 모델 호출에 실패했습니다.");
         }
 
         /* 9. 채팅 메시지 렌더링 및 영구 기억 복원 */
@@ -3401,7 +3401,7 @@ ${OUT_OF_SCOPE_FORMATTED}
                 const sender = document.createElement('span');
                 sender.className = 'sender-name';
                 const labelModel = usedModelName || getSavedModel();
-                sender.textContent = getSavedApiKey() ? `KNOC AI 어시스턴트 (${labelModel})` : 'KNOC';
+                sender.textContent = getSavedApiKey() ? `KNOC AI 어시스턴트 (${labelModel} · 정밀분석)` : 'KNOC';
 
                 const bubble = document.createElement('div');
                 bubble.className = 'bubble';
@@ -3514,26 +3514,16 @@ ${OUT_OF_SCOPE_FORMATTED}
                 return;
             }
 
-            if (searchRes.isOutOfDomain && chatHistory.length === 0) {
-                chatHistory.push({ role: "user", parts: [{ text: q }] });
-                chatHistory.push({ role: "model", parts: [{ text: OUT_OF_SCOPE_FORMATTED }] });
-                savePersistentMemory();
-                setTimeout(() => {
-                    appendMessage('assistant', OUT_OF_SCOPE_FORMATTED, null, q);
-                }, 60);
-                return;
-            }
-
-            const loadingRow = appendMessage('assistant', '⚡ 사규 및 대화 기억을 분석하여 답변을 생성하고 있습니다...', attachMatched, q);
+            const loadingRow = appendMessage('assistant', '🔍 공사 전체 사규(8종) 및 승인 FAQ 178건을 정밀 대조하여 맞춤형 답변을 작성하고 있습니다...', attachMatched, q);
             try {
-                const { reply, usedModel } = await callGeminiWithStatutes(q, topCandidates, apiKey);
+                const { reply, usedModel } = await callGeminiWithStatutes(q, apiKey);
                 loadingRow.remove();
                 const isOutReply = reply.includes("문의하신 내용에 대한 정확한 세부 사항은 아래 업무별 담당자에게 문의 부탁드립니다");
                 appendMessage('assistant', reply, isOutReply ? null : attachMatched, q, false, usedModel);
             } catch (err) {
                 loadingRow.remove();
                 const fallbackAnswer = buildConversationalResponse(q, bestMatched);
-                const notice = `⚠️ [AI 호출 오류: ${err.message}]\n일시적인 요청 집중 또는 네트워크 지연으로 사규 원문 검색 결과를 우선 안내합니다.\n\n`;
+                const notice = `⚠️ [AI 호출 오류: ${err.message}]\n일시적인 서버 지연으로 사규 원문 검색 결과를 우선 안내합니다.\n\n`;
                 const finalFallback = notice + fallbackAnswer;
                 chatHistory.push({ role: "user", parts: [{ text: q }] });
                 chatHistory.push({ role: "model", parts: [{ text: finalFallback }] });
