@@ -1857,7 +1857,7 @@
                         </div>
                         <ul class="dept-contact-list">
                             <li class="highlight">
-                                <span class="dept-label">퇴직연금 · 여비 · 기술수당</span>
+                                <span class="dept-label">퇴직연금 · 여비</span>
                                 <span class="dept-ext">내선 2775</span>
                             </li>
                             <li class="highlight">
@@ -1865,16 +1865,12 @@
                                 <span class="dept-ext">내선 2774</span>
                             </li>
                             <li class="highlight">
-                                <span class="dept-label">주택대부 · 동아리지원 · 어린이집</span>
+                                <span class="dept-label">주택대부 · 기념품 지급 · 어린이집</span>
                                 <span class="dept-ext">내선 2768</span>
                             </li>
                             <li>
                                 <span class="dept-label">보수 · 제도개선</span>
                                 <span class="dept-ext">내선 2762</span>
-                            </li>
-                            <li>
-                                <span class="dept-label">근태 · 여비 일반</span>
-                                <span class="dept-ext">내선 2772</span>
                             </li>
                             <li>
                                 <span class="dept-label">근태 · 사회보험 관리</span>
@@ -1885,8 +1881,12 @@
                                 <span class="dept-ext">내선 2766</span>
                             </li>
                             <li>
-                                <span class="dept-label">해외근무직원 보수·복지</span>
-                                <span class="dept-ext">2767 / 2777</span>
+                                <span class="dept-label">총인건비 담당</span>
+                                <span class="dept-ext">내선 2767</span>
+                            </li>
+                            <li class="highlight">
+                                <span class="dept-label">기술수당 · 해외근무직원 보수·복지</span>
+                                <span class="dept-ext">내선 2777</span>
                             </li>
                         </ul>
                     </div>
@@ -1978,7 +1978,7 @@
             <p style="font-size:12px; color:#475569; margin-bottom:12px;">스마트폰에서 전화번호 버튼을 누르면 바로 통화 연결됩니다. (울산 본사 052-216-내선번호)</p>
             <ul class="dept-contact-list">
                 <li class="highlight">
-                    <span class="dept-label">퇴직연금 · 여비 · 기술수당</span>
+                    <span class="dept-label">퇴직연금 · 여비</span>
                     <a href="tel:052-216-2775" class="dept-ext" style="text-decoration:none;">📞 2775</a>
                 </li>
                 <li class="highlight">
@@ -1986,16 +1986,12 @@
                     <a href="tel:052-216-2774" class="dept-ext" style="text-decoration:none;">📞 2774</a>
                 </li>
                 <li class="highlight">
-                    <span class="dept-label">주택대부 · 동아리지원 · 어린이집</span>
+                    <span class="dept-label">주택대부 · 기념품 지급 · 어린이집</span>
                     <a href="tel:052-216-2768" class="dept-ext" style="text-decoration:none;">📞 2768</a>
                 </li>
                 <li>
                     <span class="dept-label">보수 · 제도개선 · 평가</span>
                     <a href="tel:052-216-2762" class="dept-ext" style="text-decoration:none;">📞 2762</a>
-                </li>
-                <li>
-                    <span class="dept-label">근태 · 여비 일반</span>
-                    <a href="tel:052-216-2772" class="dept-ext" style="text-decoration:none;">📞 2772</a>
                 </li>
                 <li>
                     <span class="dept-label">근태 · 사회보험 관리</span>
@@ -2006,8 +2002,12 @@
                     <a href="tel:052-216-2766" class="dept-ext" style="text-decoration:none;">📞 2766</a>
                 </li>
                 <li>
-                    <span class="dept-label">해외근무직원 보수·복지</span>
-                    <a href="tel:052-216-2767" class="dept-ext" style="text-decoration:none;">📞 2767 / 2777</a>
+                    <span class="dept-label">총인건비 담당</span>
+                    <a href="tel:052-216-2767" class="dept-ext" style="text-decoration:none;">📞 2767</a>
+                </li>
+                <li class="highlight">
+                    <span class="dept-label">기술수당 · 해외근무직원 보수·복지</span>
+                    <a href="tel:052-216-2777" class="dept-ext" style="text-decoration:none;">📞 2777</a>
                 </li>
             </ul>
         </div>
@@ -2061,14 +2061,13 @@
             "문의하신 내용에 대한 정확한 세부 사항은 아래 업무별 담당자에게 문의 부탁드립니다.",
             "",
             "• 보수, 제도개선 - 2762",
-            "• 근태, 여비 - 2772",
             "• 학자금대부, 단체상해보험, 콘도, 동아리 업무 - 2774",
-            "• 총인건비 및 해외근무직원 보수 및 복지 - 2767",
-            "• 퇴직연금, 여비, 기술수당 - 2775",
+            "• 총인건비 - 2767",
+            "• 퇴직연금, 여비 - 2775",
             "• 근태, 사회보험 관리 - 2773",
-            "• 주택대부, 직장어린이집 - 2768",
+            "• 주택대부, 기념품 지급, 직장어린이집 - 2768",
             "• 급여 - 2766",
-            "• 해외근무직원 보수 및 복지 - 2777"
+            "• 기술수당 및 해외근무직원 보수·복지 - 2777"
         ].join("\n");
 
         /* =========================================================================
@@ -2076,7 +2075,7 @@
            ========================================================================= */
         function getDeptFooter(sheetName) {
             if (sheetName === "퇴직연금" || sheetName === "여비") {
-                return "추가 궁금한 사항은 담당자에게 문의 부탁드립니다 (사내전화번호: 2775 / 2772)";
+                return "추가 궁금한 사항은 담당자에게 문의 부탁드립니다 (사내전화번호: 2775)";
             }
             if (sheetName === "학자금대부" || sheetName === "단체상해보험" || sheetName === "콘도" || sheetName === "동아리지원") {
                 return "추가 궁금한 사항은 담당자에게 문의 부탁드립니다 (사내전화번호: 2774)";
@@ -2283,6 +2282,7 @@
            ========================================================================= */
 
         const KNOC_DB = [
+        {"id": "INS_2026_01", "sheet": "단체상해보험", "row": 1, "no": 0, "color": "RED", "cat": "2026년 개선사항", "q": "2026년도 단체상해보험 주요 개선사항과 변경된 보장내용은 무엇인가요?", "a": "2026년도 단체상해보험 주요 개선 및 변경사항은 다음과 같습니다.\n\n1. A형(실손입원의료비): 입원실손 보장한도가 기존 1천만 원에서 3천만 원으로 상향되었습니다.\n2. B형(보장보험 강화형): 치과보철치료(임플란트/브릿지/틀니)가 새롭게 추가되어 연간 3회, 회당 30만 원 보장이 가능합니다.\n3. 제외 항목: 뇌졸중 및 급성심근경색 진단비는 2026년 보장내역에서 제외되었습니다.\n4. 주간사 보험사: 2026년 3월 1일부터 2027년 2월 28일까지 주간사는 KB손해보험이며, 실손입원의료비·수술비·치아보험은 DB손해보험에서 담당합니다.", "s": "2026년 단체상해보험 안내문", "prompt": "", "keywords": ["2026년", "단체상해보험", "개선사항", "입원실손", "보철", "임플란트", "뇌졸중", "급성심근경색"], "attachType": null},
         {"id": "퇴직연금_R05", "sheet": "퇴직연금", "row": 5, "no": 1, "color": "BLUE", "cat": "제도전환", "q": "퇴직연금 DB에서 DC로 전환하고 싶은데, 제도전환 신청은 어떻게 하나요?", "a": "DC 퇴직연금 제도전환 신청은 분기마다 e-HR 포털시스템 > 보수 > 퇴직연금 > 퇴직연금 운용신청 화면에서 할 수 있습니다. 분기말마다 게시판에 신청기간 및 방법에 대해 공지하고 있으니, 참고하시기 바랍니다.", "s": "전환신청 공지, 퇴직연금 운용화면", "prompt": "전환은 되돌릴 수 없는 결정이므로 신중 안내 필요. 신청기간 외 문의 시 다음 전환기간 안내.", "keywords": ["제도전환", "퇴직연금", "db", "dc", "전환하고", "싶은데"], "attachType": null},
         {"id": "퇴직연금_R06", "sheet": "퇴직연금", "row": 6, "no": 2, "color": "BLUE", "cat": "제도전환", "q": "제도전환 신청을 완료하였는데, 제가 미리 계좌를 개설해야 할까요? 아니면 추가로 더 해야할게 있나요?", "a": "제도전환 신청을 완료하였다면, 신청하신 퇴직연금사업자 쪽에서 DC 계좌 개설을 위한 어플 설치 등 필요한 안내를 위해 연락드릴 예정입니다. \n\n그 전까지 개인이 미리 준비해야 할 사항은 따로 없습니다.", "s": "확정기여형/확정급여형 퇴직연금규약 및 보수규정", "prompt": "", "keywords": ["제도전환", "완료하였는데", "미리", "계좌", "개설해야", "추가", "해야할게"], "attachType": null},
         {"id": "퇴직연금_R07", "sheet": "퇴직연금", "row": 7, "no": 3, "color": "RED", "cat": "제도전환", "q": "DC 퇴직연금 제도전환 부담금은 언제 입금되나요?\nDC 부담금은 언제 입금되나요?", "a": "DC 퇴직연금 제도전환 부담금은 해당 분기까지의 부담금을 계산하여, 익월 말까지 지급됩니다. \n\n즉, 1분기(~3월)/2분기(~6월)/3분기(~9월)/4분기(~12월)의 부담금은 각각 4월말, 7월말, 10월말, 1월말까지 지급됩니다.\n\nDC로 전환된 이후에는 7월말, 1월말 매 반기마다 상반기, 하반기 부담금이 지급됩니다.", "s": "퇴직연금규약 제14조 및 제15조", "prompt": "", "keywords": ["제도전환", "dc", "퇴직연금", "부담금", "입금"], "attachType": null},
