@@ -3245,9 +3245,9 @@
             return `${body}\n\n[출처: ${item.s}]\n${footer}`;
         }
 
-        /* 8. Google AI Studio (Gemini 3.8 Flash 고정) 스트리밍 + 대화 기억 엔진 */
-        async function callGeminiWithStatutesStreaming(userQuery, candidateItems, apiKey, onChunkUpdate) {
-            const fixedModel = getSavedModel(); // 기본값: gemini-3.8-flash
+        /* 8. Google AI Studio (Gemini 3.8 Flash 우선 + 초고속 자동 우회 + 대화 기억 엔진) */
+        async function callGeminiWithStatutes(userQuery, candidateItems, apiKey) {
+            const primaryModel = getSavedModel(); // 기본값: gemini-3.8-flash
 
             const contextItems = [...candidateItems.slice(0, 7)];
             const coreIds = ["STAT_TR_DOM", "STAT_TR_OVERSEAS", "STAT_HL_01", "STAT_SL_01"];
@@ -3272,7 +3272,7 @@ ${memoryNote}
 
 [핵심 규칙]
 1. 이전 대화 기억 활용: 사용자가 과거에 질문했던 조건(예: 직급, 출장지, 박수, 대부유형, 연금유형 등)이나 직전 대화를 완벽히 기억하여 "총 여비가 얼마죠?", "아까 말한 조건으로 서류는 뭐예요?" 같은 질문에 맥락을 이어서 즉시 답변하세요.
-2. 여비·금액 자동 계산: 출장 기간(예: 2박 3일, 3박 4일), 직급(사원/임원), 지역(서울·제주·광역시 vs 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 일비(25,000원/일)·식비(직원 30,000원/일)·숙박비 상한(서울·제주·광역시 100,000원/박, 기타 80,000원/박)을 곱해 합산 금액을 계산해 주세요(교통운임은 실비 별도).
+2. 여비·금액 자동 계산: 출장 기간(예: 1박 2일, 2박 3일, 3박 4일), 직급(사원/팀장/임원), 지역(서울·세종·제주·광역시 vs 여수 등 기타 지역)이 주어지면 [국내여비 단가표]를 찾아 일비(25,000원/일)·식비(직원 30,000원/일, 임원 35,000원/일)·숙박비 상한(서울·세종·제주·광역시 100,000원/박, 기타 지역 80,000원/박)을 곱해 항목별 금액과 총합을 정확히 계산해 주세요(교통운임은 실비 별도).
 3. 사규 외 질문 안내: 자료에 전혀 없는 내용은 추측하지 말고 담당자 내선번호를 안내하세요:
 ${OUT_OF_SCOPE_FORMATTED}
 4. 출력 형식: 첫 문장에 핵심 결론을 두괄식으로 제시하고, 불릿(•)으로 깔끔하게 정리하세요(마크다운 **, ## 기호 사용 금지). 마지막 줄에 [출처: 근거 조항]과 담당자 내선번호를 반드시 적으세요.`;
@@ -3288,124 +3288,102 @@ ${OUT_OF_SCOPE_FORMATTED}
                 }
             ];
 
-            const isGemini3Or4 = fixedModel.startsWith("gemini-3") || fixedModel.startsWith("gemini-4");
-            const genConfig = {
-                maxOutputTokens: 1000
-            };
-            if (isGemini3Or4) {
-                genConfig.thinkingConfig = { thinkingLevel: "low" };
-            } else {
-                genConfig.temperature = 0.15;
-                genConfig.thinkingConfig = { thinkingBudget: 0 };
+            function buildPayloadForModel(targetModel) {
+                const genConfig = {
+                    maxOutputTokens: 1000
+                };
+                if (targetModel.startsWith("gemini-3") || targetModel.startsWith("gemini-4")) {
+                    genConfig.thinkingConfig = { thinkingLevel: "low" };
+                } else if (targetModel.startsWith("gemini-2.5")) {
+                    genConfig.temperature = 0.15;
+                    genConfig.thinkingConfig = { thinkingBudget: 0 };
+                } else {
+                    genConfig.temperature = 0.15;
+                }
+                return JSON.stringify({
+                    system_instruction: { parts: [{ text: systemInstruction }] },
+                    contents: contents,
+                    generationConfig: genConfig
+                });
             }
 
-            const payload = JSON.stringify({
-                system_instruction: { parts: [{ text: systemInstruction }] },
-                contents: contents,
-                generationConfig: genConfig
-            });
-
-            // 타임아웃 45초로 넉넉히 설정하고, 응답 헤더 도착 즉시 타이머 해제하여 스트리밍 중 끊김 방지
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort("응답 대기 시간(45초) 초과"), 45000);
-
-            try {
-                const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fixedModel)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
-                const res = await fetch(streamUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: payload,
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                if (!res.ok) {
-                    const errJson = await res.json().catch(() => ({}));
-                    const errMsg = errJson?.error?.message || `HTTP ${res.status} 오류`;
-                    throw new Error(errMsg);
-                }
-
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let buffer = "";
-                let fullText = "";
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split("\n");
-                    buffer = lines.pop() || "";
-
-                    for (const line of lines) {
-                        const trimmed = line.trim();
-                        if (!trimmed.startsWith("data:")) continue;
-                        const dataStr = trimmed.slice(5).trim();
-                        if (!dataStr || dataStr === "[DONE]") continue;
-                        try {
-                            const chunkJson = JSON.parse(dataStr);
-                            const parts = chunkJson?.candidates?.[0]?.content?.parts || [];
-                            for (const p of parts) {
-                                if (p.text && !p.thought) {
-                                    fullText += p.text;
-                                    const cleanedLive = fullText.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "");
-                                    onChunkUpdate(cleanedLive);
-                                }
-                            }
-                        } catch (parseErr) {}
-                    }
-                }
-
-                const finalReply = fullText.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
-                if (!finalReply) {
-                    throw new Error("빈 응답이 반환되었습니다.");
-                }
-
-                chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
-                chatHistory.push({ role: "model", parts: [{ text: finalReply }] });
-                savePersistentMemory();
-
-                return finalReply;
-            } catch (err) {
-                clearTimeout(timeoutId);
-                // 스트리밍 연결이 끊겼을 경우 일반 generateContent 엔드포인트로 1회 즉시 재시도
+            async function fetchWithTimeout(targetModel, timeoutMs) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
                 try {
-                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fixedModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-                    const res2 = await fetch(fallbackUrl, {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                    const res = await fetch(url, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: payload
+                        body: buildPayloadForModel(targetModel),
+                        signal: controller.signal
                     });
-                    if (res2.ok) {
-                        const data2 = await res2.json();
-                        const parts2 = data2?.candidates?.[0]?.content?.parts || [];
-                        const text2 = parts2.filter(p => p.text && !p.thought).map(p => p.text).join("");
-                        const cleaned2 = text2.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
-                        if (cleaned2) {
-                            onChunkUpdate(cleaned2);
-                            chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
-                            chatHistory.push({ role: "model", parts: [{ text: cleaned2 }] });
-                            savePersistentMemory();
-                            return cleaned2;
-                        }
-                    } else {
-                        const errJson2 = await res2.json().catch(() => ({}));
-                        if (errJson2?.error?.message) {
-                            throw new Error(errJson2.error.message);
-                        }
+                    clearTimeout(timer);
+                    return res;
+                } catch (e) {
+                    clearTimeout(timer);
+                    if (e && e.name === "AbortError") {
+                        throw new Error(`${targetModel} 응답 시간(${Math.round(timeoutMs / 1000)}초) 초과`);
                     }
-                } catch (retryErr) {
-                    throw retryErr;
+                    throw e;
                 }
-                throw err;
             }
+
+            // 1순위: 사용자가 설정한 gemini-3.8-flash (8초 제한) -> 지연·혼잡 시 초고속 안정 모델로 즉시 자동 우회
+            const candidateChain = [
+                { model: primaryModel, timeout: 8000 },
+                { model: "gemini-2.5-flash", timeout: 12000 },
+                { model: "gemini-flash-latest", timeout: 12000 },
+                { model: "gemini-2.0-flash", timeout: 12000 }
+            ].filter((item, idx, arr) => item.model && arr.findIndex(x => x.model === item.model) === idx);
+
+            let lastError = null;
+
+            for (const entry of candidateChain) {
+                try {
+                    const res = await fetchWithTimeout(entry.model, entry.timeout);
+                    if (!res.ok) {
+                        const errJson = await res.json().catch(() => ({}));
+                        const errMsg = errJson?.error?.message || `HTTP ${res.status} 오류`;
+                        lastError = new Error(`${entry.model}: ${errMsg}`);
+                        // API 키 자체 오류면 즉시 중단
+                        if (res.status === 400 && errMsg.toLowerCase().includes("api key")) {
+                            throw lastError;
+                        }
+                        continue;
+                    }
+
+                    const data = await res.json();
+                    const parts = data?.candidates?.[0]?.content?.parts || [];
+                    const rawText = parts.filter(p => p.text && !p.thought).map(p => p.text).join("");
+                    const cleaned = rawText.replace(/\*\*/g, "").replace(/^\s*#+\s+/gm, "").trim();
+
+                    if (!cleaned) {
+                        lastError = new Error(`${entry.model}: 빈 응답 반환`);
+                        continue;
+                    }
+
+                    chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
+                    chatHistory.push({ role: "model", parts: [{ text: cleaned }] });
+                    savePersistentMemory();
+
+                    return { reply: cleaned, usedModel: entry.model };
+                } catch (err) {
+                    lastError = err;
+                    if (err.message && err.message.toLowerCase().includes("api key")) {
+                        throw err;
+                    }
+                }
+            }
+
+            throw lastError || new Error("모든 AI 모델 응답 지연");
         }
 
-        /* 9. 채팅 메시지 렌더링, 영구 기억 복원 및 실시간 스트리밍 출력 */
+        /* 9. 채팅 메시지 렌더링 및 영구 기억 복원 */
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
 
-        function appendMessage(role, text, matchedItem, originalQuery, skipScroll) {
+        function appendMessage(role, text, matchedItem, originalQuery, skipScroll, usedModelName) {
             const row = document.createElement('div');
             row.className = `message-row ${role}`;
 
@@ -3422,7 +3400,8 @@ ${OUT_OF_SCOPE_FORMATTED}
 
                 const sender = document.createElement('span');
                 sender.className = 'sender-name';
-                sender.textContent = getSavedApiKey() ? `KNOC AI 어시스턴트 (${getSavedModel()})` : 'KNOC';
+                const labelModel = usedModelName || getSavedModel();
+                sender.textContent = getSavedApiKey() ? `KNOC AI 어시스턴트 (${labelModel})` : 'KNOC';
 
                 const bubble = document.createElement('div');
                 bubble.className = 'bubble';
@@ -3468,8 +3447,7 @@ ${OUT_OF_SCOPE_FORMATTED}
                 row.appendChild(avatar);
                 row.appendChild(content);
                 row._bubbleEl = bubble;
-                row._docBoxEl = docBox;
-                row._contentEl = content;
+                row._senderEl = sender;
             } else {
                 const content = document.createElement('div');
                 content.className = 'message-content';
@@ -3546,21 +3524,16 @@ ${OUT_OF_SCOPE_FORMATTED}
                 return;
             }
 
-            const liveRow = appendMessage('assistant', '⚡ 답변 생성 중...', attachMatched, q);
+            const loadingRow = appendMessage('assistant', '⚡ 사규 및 대화 기억을 분석하여 답변을 생성하고 있습니다...', attachMatched, q);
             try {
-                const aiReply = await callGeminiWithStatutesStreaming(q, topCandidates, apiKey, (partialText) => {
-                    if (liveRow._bubbleEl) {
-                        liveRow._bubbleEl.textContent = partialText;
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                });
-                if (liveRow._bubbleEl) {
-                    liveRow._bubbleEl.textContent = aiReply;
-                }
+                const { reply, usedModel } = await callGeminiWithStatutes(q, topCandidates, apiKey);
+                loadingRow.remove();
+                const isOutReply = reply.includes("문의하신 내용에 대한 정확한 세부 사항은 아래 업무별 담당자에게 문의 부탁드립니다");
+                appendMessage('assistant', reply, isOutReply ? null : attachMatched, q, false, usedModel);
             } catch (err) {
-                liveRow.remove();
+                loadingRow.remove();
                 const fallbackAnswer = buildConversationalResponse(q, bestMatched);
-                const notice = `⚠️ [${getSavedModel()} 호출 오류: ${err.message}]\n일시적인 요청 집중 또는 네트워크 지연으로 사규 원문 검색 결과를 우선 안내합니다.\n\n`;
+                const notice = `⚠️ [AI 호출 오류: ${err.message}]\n일시적인 요청 집중 또는 네트워크 지연으로 사규 원문 검색 결과를 우선 안내합니다.\n\n`;
                 const finalFallback = notice + fallbackAnswer;
                 chatHistory.push({ role: "user", parts: [{ text: q }] });
                 chatHistory.push({ role: "model", parts: [{ text: finalFallback }] });
