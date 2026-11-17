@@ -1967,24 +1967,20 @@
             </div>
             <p style="font-size:12px; color:#475569; margin-bottom:12px;">스마트폰에서 전화번호 버튼을 누르면 바로 통화 연결됩니다. (울산 본사 052-216-내선번호)</p>
             <ul class="dept-contact-list">
-                <li class="highlight">
+                <li>
                     <span class="dept-label">퇴직연금 · 여비</span>
                     <a href="tel:052-216-2775" class="dept-ext" style="text-decoration:none;">📞 2775</a>
                 </li>
-                <li class="highlight">
+                <li>
                     <span class="dept-label">학자금대부 · 동아리 · 콘도</span>
                     <a href="tel:052-216-2774" class="dept-ext" style="text-decoration:none;">📞 2774</a>
                 </li>
-                <li class="highlight">
+                <li>
                     <span class="dept-label">주택대부 · 기념품 지급 · 어린이집</span>
                     <a href="tel:052-216-2768" class="dept-ext" style="text-decoration:none;">📞 2768</a>
                 </li>
                 <li>
-                    <span class="dept-label">보수 · 제도개선 · 평가</span>
-                    <a href="tel:052-216-2762" class="dept-ext" style="text-decoration:none;">📞 2762</a>
-                </li>
-                <li>
-                    <span class="dept-label">근태 · 사회보험 관리</span>
+                    <span class="dept-label">근태 · 사회보험</span>
                     <a href="tel:052-216-2773" class="dept-ext" style="text-decoration:none;">📞 2773</a>
                 </li>
                 <li>
@@ -1992,20 +1988,19 @@
                     <a href="tel:052-216-2766" class="dept-ext" style="text-decoration:none;">📞 2766</a>
                 </li>
                 <li>
-                    <span class="dept-label">총인건비 담당</span>
+                    <span class="dept-label">총인건비 업무</span>
                     <a href="tel:052-216-2767" class="dept-ext" style="text-decoration:none;">📞 2767</a>
                 </li>
-                <li class="highlight">
+                <li>
                     <span class="dept-label">기술수당 · 해외근무직원 보수·복지</span>
                     <a href="tel:052-216-2777" class="dept-ext" style="text-decoration:none;">📞 2777</a>
                 </li>
-            </ul>
-        </div>
+            </ul>        </div>
     </div>
     </div><!-- /.mobile-app-shell -->
 
     <script>
-        const DEFAULT_GOOGLE_FORM_URL = "";
+        const DEFAULT_GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc3-4GyUg-RO6F_-k5696qtQcHvYvB6aAXjoHpUczRe0D-tcg/viewform?usp=publish-editor";
 
         const KNOC_LOGO_URI = document.getElementById("headerKnocLogo").src;
         const KNOC_K_URI = document.getElementById("welcomeAvatarImg").src;
@@ -3536,8 +3531,11 @@ ${OUT_OF_SCOPE_FORMATTED}
             });
         });
 
-        loadPersistentMemory();
-        restorePreviousChatMessages();
+        // 처음 홈페이지를 들어가면 대화창은 초기화된 상태로 시작하되, 해당 페이지 세션 내 대화 기억은 유지
+        localStorage.removeItem(MEMORY_STORAGE_KEY);
+        localStorage.removeItem(PROFILE_STORAGE_KEY);
+        chatHistory = [];
+        userMemoryFacts = [];
 
                 const surveyRecords = [];
 
