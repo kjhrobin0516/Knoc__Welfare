@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한국석유공사(KNOC) 사내 복지제도 종합 포털</title>
+    <title>한국석유공사(KNOC) 사내 복지제도 AI 종합 포털</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-kopubworld@1.0.0/kopubworlddotum.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1003,13 +1003,15 @@
 
                     <aside class="portal-sidebar">
                         <div class="side-widget">
-                            <div class="widget-title"><span>📞 복지팀 전담 내선번호</span></div>
+                            <div class="widget-title"><span>📞 5대 지원 분야 및 기타 전담 내선번호</span></div>
                             <ul class="dept-contact-list">
                                 <li><span class="dept-label">퇴직연금 · 여비</span><a href="tel:052-216-2775" class="dept-ext">📞 2775</a></li>
-                                <li><span class="dept-label">학자금대부 · 동아리</span><a href="tel:052-216-2774" class="dept-ext">📞 2774</a></li>
-                                <li><span class="dept-label">주택대부 · 기념품</span><a href="tel:052-216-2768" class="dept-ext">📞 2768</a></li>
+                                <li><span class="dept-label">학자금대부 · 동아리 · 콘도</span><a href="tel:052-216-2774" class="dept-ext">📞 2774</a></li>
+                                <li><span class="dept-label">주택대부 · 기념품 지급 · 어린이집</span><a href="tel:052-216-2768" class="dept-ext">📞 2768</a></li>
                                 <li><span class="dept-label">근태 · 사회보험</span><a href="tel:052-216-2773" class="dept-ext">📞 2773</a></li>
                                 <li><span class="dept-label">급여 업무</span><a href="tel:052-216-2766" class="dept-ext">📞 2766</a></li>
+                                <li><span class="dept-label">총인건비 업무</span><a href="tel:052-216-2767" class="dept-ext">📞 2767</a></li>
+                                <li><span class="dept-label">기술수당 · 해외근무직원 보수·복지</span><a href="tel:052-216-2777" class="dept-ext">📞 2777</a></li>
                             </ul>
                         </div>
                     </aside>
@@ -1142,12 +1144,11 @@
 
             appendMessage('user', q);
 
-            // 간단 로컬 검색 및 응답
             let reply = "해당 사규 및 규정에 관련 조항이 명시되어 있지 않습니다. 정확한 사항은 복지팀 담당자(내선 2775 / 2774 / 2768)에게 문의해 주시기 바랍니다.";
             if (q.includes("여비") || q.includes("출장") || q.includes("숙박")) {
                 reply = "[핵심 결론]\n한국석유공사 여비규정에 따른 국내출장 여비 기준은 다음과 같습니다.\n\n• 일비: 임원 및 직원 공통 1일 25,000원 (공용차량 이용 시 일비 감액 조항은 없으며, 업무용 차량 이용 시 연료비·통행료 실비 지급)\n• 식비: 임원 1일 35,000원 / 직원 1일 30,000원\n• 숙박비: 서울·세종·제주·광역시 1박당 상한 100,000원, 기타 지역 상한 80,000원 (친지 집 무상 숙박 시 1박당 20,000원 정액 지급, 단 본인 자택 숙박은 지급 제외)\n\n[출처: 여비규정 별표 1 및 여비집행 세부지침]\n추가 궁금한 사항은 복지팀(내선 2775)으로 문의 바랍니다.";
-            } else if (q.includes("제도전환") || q.includes("디비") || q.includes("디씨")) {
-                reply = "[핵심 결론]\nDC 퇴직연금 제도전환 신청은 분기마다 e-HR 포털시스템을 통해 가능하며, 전환 부담금은 해당 분기까지의 계산을 거쳐 익월 말에 지급됩니다.\n\n[출처: 확정기여형/확정급여형 퇴직연금규약]\n추가 궁금한 사항은 복지팀(내선 2775)으로 문의 바랍니다.";
+            } else if (q.includes("승진보상금") || q.includes("승진") || q.includes("승급")) {
+                reply = "[핵심 결론]\n확정기여형(DC) 퇴직연금 가입자의 승진보상금(승급 추가부담금)은 직급 승급으로 임금 상승이 발생할 때마다 산정하여 추가 납입됩니다. 임금피크제 적용 등에 따른 별도의 횟수 제한(재직 중 1회 한정 등)은 공사 확정기여형 퇴직연금규약상 존재하지 않습니다.\n\n[출처: 확정기여형 퇴직연금규약 제13조]\n추가 궁금한 사항은 복지팀(내선 2775)으로 문의 바랍니다.";
             }
 
             setTimeout(() => {
