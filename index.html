@@ -159,7 +159,7 @@
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
-            height: 620px;
+            height: 640px;
             overflow: hidden;
         }
         .chat-card-header {
@@ -232,22 +232,22 @@
             color: var(--text-main);
             border: 1px solid #e2e8f0;
             border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 28, 68, 0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
 
-        .suggest-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+        .suggest-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
         .pill {
             background: #ffffff;
             border: 1px solid #93c5fd;
             color: var(--knoc-blue);
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 6px 13px;
+            padding: 6px 12px;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
-        .pill:hover { background: var(--knoc-sky); }
+        .pill:hover { background: var(--knoc-sky); border-color: var(--knoc-blue); }
 
         .chat-input-area {
             padding: 14px 18px;
@@ -264,9 +264,9 @@
             padding: 12px 16px;
             font-size: 14.5px;
             outline: none;
-            transition: all 0.2s ease;
+            transition: border-color 0.15s ease;
         }
-        .chat-input:focus { border-color: var(--knoc-blue); box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1); }
+        .chat-input:focus { border-color: var(--knoc-blue); }
         .send-btn {
             background: var(--knoc-navy);
             color: #ffffff;
@@ -277,7 +277,7 @@
             font-size: 14.5px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: background 0.15s ease;
         }
         .send-btn:hover { background: var(--knoc-blue); }
 
@@ -348,10 +348,13 @@
         .footer-inner strong { color: #f8fafc; }
 
         /* 모바일 UI */
-        .mobile-only-header-actions, .mobile-quick-strip, .mobile-contact-sheet-backdrop, .pc-floating-ExitMobileBtn { display: none; }
+        .mobile-only-header-actions, .mobile-quick-strip, .mobile-contact-sheet-backdrop, .pc-floating-ExitMobileBtn {
+            display: none;
+        }
         body.force-mobile-ui {
             background-color: #0f172a;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -371,6 +374,98 @@
             font-size: 12.5px;
             font-weight: 800;
             cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            html, body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #f1f5f9;
+            }
+            .mobile-app-shell {
+                position: fixed;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .top-utility-bar, .hero-banner, .gnb-nav, .quick-doc-bar, .portal-sidebar, .site-footer, .chat-card-header {
+                display: none !important;
+            }
+            .site-header {
+                background: linear-gradient(135deg, #002b66 0%, #00408f 100%);
+                border-bottom: none;
+                flex-shrink: 0;
+            }
+            .header-inner { height: 52px; padding: 0 12px; }
+            .brand-logo-img { height: 26px; background: #ffffff; padding: 2px 6px; border-radius: 5px; }
+            .brand-divider { display: none !important; }
+            .brand-subtitle, .pc-title { display: none !important; }
+            .m-title { display: inline !important; color: #ffffff; font-size: 14px; font-weight: 800; }
+            .mobile-only-header-actions { display: flex; align-items: center; gap: 6px; }
+            .m-hdr-btn {
+                background: rgba(255,255,255,0.18);
+                color: #ffffff;
+                border: 1px solid rgba(255,255,255,0.32);
+                border-radius: 999px;
+                padding: 5px 10px;
+                font-size: 11.5px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .portal-main {
+                flex: 1 1 0%;
+                min-height: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .tab-section { flex: 1 1 0%; min-height: 0; overflow-y: auto; }
+            .tab-section#tab-consult.active { display: flex; flex-direction: column; overflow: hidden; }
+            .consult-grid, .chat-column { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; }
+            .mobile-quick-strip {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 7px 10px;
+                background: #ffffff;
+                border-bottom: 1px solid #e2e8f0;
+                overflow-x: auto;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .m-strip-chip {
+                background: #f8fafc;
+                color: #1e293b;
+                border: 1px solid #cbd5e1;
+                border-radius: 999px;
+                padding: 5px 10px;
+                font-size: 11.5px;
+                font-weight: 700;
+                flex-shrink: 0;
+                cursor: pointer;
+            }
+            .m-strip-chip.primary { background: #eff6ff; color: #0056b3; border-color: #93c5fd; }
+            .chat-card {
+                flex: 1 1 0%;
+                min-height: 0 !important;
+                height: auto !important;
+                border: none;
+                border-radius: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            .chat-messages { flex: 1 1 0%; min-height: 0; padding: 12px 10px; gap: 12px; overflow-y: auto; }
+            .message-row { max-width: 100%; }
+            .avatar { width: 32px; height: 32px; padding: 2px; }
+            .bubble { padding: 10px 13px; font-size: 13.5px; }
+            .chat-input-area { padding: 8px 10px; flex-shrink: 0; gap: 6px; }
+            .chat-input { padding: 9px 13px; font-size: 16px; border-radius: 999px; }
+            .send-btn { height: 38px; padding: 0 15px; border-radius: 999px; font-size: 13px; }
         }
         body.force-mobile-ui .mobile-app-shell {
             width: 100%;
@@ -395,17 +490,41 @@
         body.force-mobile-ui .chat-card-header { display: none !important; }
         body.force-mobile-ui .site-header { background: linear-gradient(135deg, #002b66 0%, #00408f 100%); border-bottom: none; flex-shrink: 0; }
         body.force-mobile-ui .header-inner { height: 52px; padding: 0 12px; }
-        body.force-mobile-ui .brand-title { font-size: 15px; color: #ffffff; }
-        body.force-mobile-ui .brand-subtitle { display: none; }
+        body.force-mobile-ui .brand-logo-img { height: 26px; background: #ffffff; padding: 2px 6px; border-radius: 5px; }
+        body.force-mobile-ui .brand-divider { display: none !important; }
+        body.force-mobile-ui .brand-subtitle, body.force-mobile-ui .pc-title { display: none !important; }
+        body.force-mobile-ui .m-title { display: inline !important; color: #ffffff; font-size: 14px; font-weight: 800; }
+        body.force-mobile-ui .mobile-only-header-actions { display: flex; align-items: center; gap: 6px; }
+        body.force-mobile-ui .m-hdr-btn { background: rgba(255,255,255,0.18); color: #ffffff; border: 1px solid rgba(255,255,255,0.32); border-radius: 999px; padding: 5px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; }
         body.force-mobile-ui .portal-main,
         body.force-mobile-ui .tab-section#tab-consult.active,
         body.force-mobile-ui .consult-grid,
         body.force-mobile-ui .chat-column,
         body.force-mobile-ui .chat-card { flex: 1 1 0%; min-height: 0 !important; height: auto !important; padding: 0; margin: 0; border: none; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; }
+        body.force-mobile-ui .mobile-quick-strip { display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: #ffffff; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; flex-shrink: 0; }
+        body.force-mobile-ui .m-strip-chip { background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 999px; padding: 5px 10px; font-size: 11.5px; font-weight: 700; flex-shrink: 0; cursor: pointer; }
+        body.force-mobile-ui .m-strip-chip.primary { background: #eff6ff; color: #0056b3; border-color: #93c5fd; }
         body.force-mobile-ui .chat-messages { flex: 1 1 0%; min-height: 0; padding: 12px 10px; gap: 12px; overflow-y: auto; }
         body.force-mobile-ui .chat-input-area { padding: 8px 10px; flex-shrink: 0; gap: 6px; }
         body.force-mobile-ui .chat-input { padding: 9px 13px; font-size: 14px; border-radius: 999px; }
         body.force-mobile-ui .send-btn { height: 38px; padding: 0 15px; border-radius: 999px; font-size: 13px; }
+        .mobile-contact-sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 9500;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .mobile-contact-sheet {
+            background: #ffffff;
+            width: 100%;
+            max-width: 460px;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 16px 26px;
+            max-height: 82dvh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -413,34 +532,33 @@
     <div class="mobile-app-shell">
         <div class="top-utility-bar">
             <div class="top-utility-left">
-                <span><i class="status-dot" id="apiStatusDot"></i><strong id="apiStatusText">KNOC 사규 지능형 분석 및 자동 계산 모드 활성화</strong></span>
+                <span><i class="status-dot" id="apiStatusDot"></i><strong id="apiStatusText">KNOC 공사 사규 및 189개 FAQ 맥락 연산 엔진 작동 중</strong></span>
             </div>
             <div class="top-utility-right">
-                <button type="button" onclick="toggleMobileUiMode(true)" style="background:#0f172a; color:#93c5fd; border:1px solid #38bdf8; border-radius:6px; padding:3px 10px; font-size:11.5px; font-weight:700; cursor:pointer;">📱 모바일 화면 미리보기</button>
-                <button type="button" id="openApiModalBtn" onclick="openApiKeyModal()" style="background:#0056b3; color:#ffffff; border:1px solid #60a5fa; border-radius:6px; padding:3px 10px; font-size:11.5px; font-weight:700; cursor:pointer;">🔑 Google AI Studio API 설정</button>
+                <button type="button" onclick="toggleMobileUiMode(true)" style="background:#0f172a; color:#93c5fd; border:1px solid #38bdf8; border-radius:6px; padding:3px 10px; font-size:11.5px; font-weight:700; cursor:pointer;">📱 모바일 UI 미리보기</button>
+                <button type="button" id="openApiModalBtn" onclick="openApiKeyModal()" style="background:#0056b3; color:#ffffff; border:1px solid #60a5fa; border-radius:6px; padding:3px 10px; font-size:11.5px; font-weight:700; cursor:pointer;">🔑 Google AI API 키 설정</button>
             </div>
         </div>
 
-        <!-- API 키 설정 모달 -->
         <div id="apiKeyModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999; align-items:center; justify-content:center; padding:16px;">
             <div style="background:#ffffff; border-radius:16px; width:100%; max-width:460px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.22);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h3 style="color:#002b66; font-size:17px; font-weight:800;">🔑 Google Gemini API 키 설정</h3>
+                    <h3 style="color:#002b66; font-size:17px; font-weight:800;">🔑 Google AI Studio (Gemini) API 키 설정</h3>
                     <button type="button" onclick="closeApiKeyModal()" style="background:none; border:none; font-size:18px; color:#64748b; cursor:pointer;">✕</button>
                 </div>
                 <p style="font-size:12.5px; color:#475569; line-height:1.55; margin-bottom:12px;">
-                    API 키가 없어도 공사 사규 기반의 직접 계산 및 컨설팅 엔진이 기본 동작합니다. 외부 최신 LLM 엔진을 직접 연동하시려면 키를 입력하세요.
+                    Google AI Studio에서 발급받은 Gemini API 키를 등록하시면 사규·FAQ 전체 데이터베이스를 바탕으로 Gemini 모델이 정밀 생성 연산을 수행합니다.
                 </p>
-                <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy... 로 시작하는 API 키" style="width:100%; padding:10px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13.5px; margin-bottom:10px;">
+                <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy... 로 시작하는 API 키 입력" style="width:100%; padding:10px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13.5px; margin-bottom:10px;">
                 <select id="geminiModelSelect" style="width:100%; padding:9px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; margin-bottom:14px;">
-                    <option value="gemini-1.5-flash">gemini-1.5-flash (공식 권장·초고속)</option>
+                    <option value="gemini-1.5-flash">gemini-1.5-flash (빠른 응답 권장)</option>
                     <option value="gemini-2.0-flash">gemini-2.0-flash (최신 모델)</option>
-                    <option value="gemini-1.5-pro">gemini-1.5-pro (심층 분석형)</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro (심층 분석)</option>
                 </select>
                 <div style="display:flex; justify-content:space-between; gap:8px;">
                     <button type="button" onclick="clearApiKey()" style="padding:8px 12px; border:1px solid #fecaca; background:#fef2f2; color:#dc2626; border-radius:8px; cursor:pointer; font-weight:700; font-size:12.5px;">키 삭제</button>
                     <div style="display:flex; gap:8px;">
-                        <button type="button" onclick="closeApiKeyModal()" style="padding:8px 14px; border:1px solid #cbd5e1; background:#f8fafc; border-radius:8px; cursor:pointer; font-weight:700;">닫기</button>
+                        <button type="button" onclick="closeApiKeyModal()" style="padding:8px 14px; border:1px solid #cbd5e1; background:#f8fafc; border-radius:8px; cursor:pointer; font-weight:700;">취소</button>
                         <button type="button" onclick="saveApiKey()" style="padding:8px 18px; border:none; background:#002b66; color:#ffffff; border-radius:8px; cursor:pointer; font-weight:700;">저장</button>
                     </div>
                 </div>
@@ -450,24 +568,28 @@
         <header class="site-header">
             <div class="header-inner">
                 <a class="brand-box" onclick="switchPortalTab('consult')">
-                    <div style="width:38px; height:38px; background:#002b66; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:15px;">KNOC</div>
+                    <div style="width:38px; height:38px; border-radius:8px; background:var(--knoc-navy); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:16px;">K</div>
                     <div class="brand-divider"></div>
                     <div class="brand-title-group">
-                        <span class="brand-title">한국석유공사 사내 복지제도 AI 질의 포털</span>
-                        <span class="brand-subtitle">Korea National Oil Corporation Welfare Intelligent Portal</span>
+                        <span class="brand-title"><span class="pc-title">한국석유공사 사내 복지제도 AI 종합 포털</span><span class="m-title" style="display:none;">KNOC 사내 복지제도 AI</span></span>
+                        <span class="brand-subtitle">Korea National Oil Corporation Welfare Service Portal (통합 사규·FAQ 탑재)</span>
                     </div>
                 </a>
                 <nav class="gnb-nav">
-                    <button type="button" class="gnb-btn active" id="gnb-consult" onclick="switchPortalTab('consult')">💬 사규 질의 및 여비 계산</button>
+                    <button type="button" class="gnb-btn active" id="gnb-consult" onclick="switchPortalTab('consult')">💬 AI 복지규정 상담</button>
                     <button type="button" class="gnb-btn" id="gnb-survey" onclick="switchPortalTab('survey')">📝 설문 및 추가 질의</button>
                 </nav>
+                <div class="mobile-only-header-actions">
+                    <button type="button" class="m-hdr-btn" onclick="openApiKeyModal()">🔑 AI 키</button>
+                    <button type="button" class="m-hdr-btn" onclick="clearSavedChatMemory()">🧹 초기화</button>
+                </div>
             </div>
         </header>
 
         <section class="hero-banner">
             <div class="hero-inner">
-                <h1>한국석유공사 임직원 복지제도 AI 컨설팅 센터</h1>
-                <p>단순 조항 복사가 아닌, 출장 기간·지역·직급·복지 상황을 스스로 생각하고 계산하여 맞춤 답변을 드립니다.</p>
+                <h1>한국석유공사 임직원 복지제도 AI 상담 센터</h1>
+                <p>공사 사규(복지규정, 여비규정, 보수규정, 퇴직연금규약, 해외근무규정, 임차주택규정 등)와 189건의 복지 FAQ만을 근거로 오직 [핵심 결론]만 정확히 산출·안내합니다.</p>
             </div>
         </section>
 
@@ -476,18 +598,26 @@
                 <div class="consult-grid">
                     <div class="chat-column">
                         <div class="quick-doc-bar">
-                            <div class="quick-doc-title">📂 필수 업무 매뉴얼 및 양식 바로가기</div>
+                            <div class="quick-doc-title">📂 공사 필수 서식 및 설문 바로가기</div>
                             <div class="quick-doc-btns">
                                 <button type="button" class="doc-btn primary" onclick="openRepaymentManual()">📘 주택대부 상환 매뉴얼</button>
-                                <button type="button" class="doc-btn" onclick="openObjectChangeFormPreview()">🖨️ 양식(6) 목적물 변경 신청서</button>
-                                <button type="button" class="doc-btn survey-btn" onclick="switchPortalTab('survey')">📝 복지팀 설문 폼</button>
+                                <button type="button" class="doc-btn" onclick="openObjectChangeFormPreview()">🖨️ 목적물 변경 신청서 양식</button>
+                                <button type="button" class="doc-btn survey-btn" onclick="switchPortalTab('survey')">📝 복지 질의·만족도 설문</button>
                             </div>
+                        </div>
+
+                        <div class="mobile-quick-strip">
+                            <button type="button" class="m-strip-chip primary" onclick="openRepaymentManual()">📘 상환매뉴얼</button>
+                            <button type="button" class="m-strip-chip" onclick="openObjectChangeFormPreview()">🖨️ 목적물변경양식</button>
+                            <button type="button" class="m-strip-chip" onclick="openMobileContactSheet()">📞 담당내선</button>
+                            <button type="button" class="m-strip-chip" style="background:#fff1f2; color:#be123c; border-color:#fda4af;" onclick="switchPortalTab('survey')">📝 설문폼</button>
                         </div>
 
                         <div class="chat-card">
                             <div class="chat-card-header">
                                 <div class="chat-card-header-left">
-                                    <span>🤖 KNOC 사규 컨설팅 AI 어시스턴트</span>
+                                    <span>🤖 KNOC 복지제도 AI 상담 어시스턴트</span>
+                                    <span id="memoryStatusBadge" style="font-size:11.5px; background:#eff6ff; color:#0056b3; border:1px solid #bfdbfe; padding:2px 8px; border-radius:999px; font-weight:700;">🧠 전사 사규·189개 FAQ 탑재됨</span>
                                 </div>
                                 <div style="display:flex; gap:6px;">
                                     <button type="button" class="chat-reset-btn" onclick="clearSavedChatMemory()">🧹 대화 초기화</button>
@@ -496,28 +626,27 @@
 
                             <div class="chat-messages" id="chatMessages">
                                 <div class="message-row assistant">
-                                    <div class="avatar"><span>KNOC</span></div>
+                                    <div class="avatar"><span>K</span></div>
                                     <div class="message-content">
                                         <span class="sender-name">KNOC 복지제도 AI</span>
                                         <div class="bubble">※ 생성형 AI가 만든 답변은 오류를 포함할 수 있습니다. 정확한 확인을 위해서 담당자와 상의해주시기 바랍니다.
 
-안녕하십니까! 한국석유공사 사내 복지제도 AI 포털입니다.
-궁금하신 규정을 단순히 조항으로만 안내하지 않고, **출장 일정(예: 서울 1박 2일 총여비 계산), 직급, 목적지, 주택대부 상환 조건**에 맞추어 직접 계산하고 분석해 드립니다.
-
-아래 추천 질문을 누르시거나 직접 일정을 적어 질문해 보세요!</div>
+안녕하십니까, 한국석유공사 사내 복지제도 AI 포털입니다.
+복지규정, 국내외 여비규정, 퇴직연금 승진보상금, 주택·학자금대부, 해외근무 및 임차주택 기준에 대해 궁금하신 점을 자유롭게 질문해 주시기 바랍니다.</div>
                                         <div class="suggest-pills">
-                                            <button type="button" class="pill" data-q="직원 서울 1박 2일 출장가면 총 여비 얼마 나와?">직원 서울 1박2일 총여비 계산</button>
-                                            <button type="button" class="pill" data-q="임원 부산 2박 3일 출장 여비 계산해줘">임원 2박3일 여비 계산</button>
-                                            <button type="button" class="pill" data-q="팀원 뉴욕 3박 4일 해외출장 숙박비랑 일비는?">뉴욕 해외출장 특례 기준</button>
-                                            <button type="button" class="pill" data-q="DC형 퇴직연금 승진보상금 지급 기준과 횟수는?">승진보상금 지급 기준</button>
-                                            <button type="button" class="pill" data-q="주택자금대부 7천만원 거치기간이랑 상환방법은?">주택자금대부 상환방법</button>
+                                            <button type="button" class="pill" data-q="승진보상금이 뭐야?">승진보상금 개념·원리</button>
+                                            <button type="button" class="pill" data-q="일반직원 서울 1박 2일 출장 여비 계산해줘">국내 1박 2일 출장비</button>
+                                            <button type="button" class="pill" data-q="팀원 뉴욕 3박 4일 출장비 얼마 나와?">해외(뉴욕) 출장비 계산</button>
+                                            <button type="button" class="pill" data-q="출산축하금 지급 기준 알려줘">출산축하금</button>
+                                            <button type="button" class="pill" data-q="주택자금대부 한도와 거치기간 상환방법">주택자금대부</button>
+                                            <button type="button" class="pill" data-q="해외 단신부임자 귀국 휴가 지원">해외 단신부임 귀국휴가</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="chat-input-area">
-                                <input type="text" id="userInput" class="chat-input" placeholder="질문이나 일정을 입력하세요 (예: 직원 대전 당일출장 식비와 일비는 얼마야?)" autocomplete="off">
+                                <input type="text" id="userInput" class="chat-input" placeholder="궁금한 사규·복지제도를 입력하세요 (예: 승진보상금, 1박2일 여비, 출산축하금)" autocomplete="off">
                                 <button type="button" id="sendBtn" class="send-btn">전송</button>
                             </div>
                         </div>
@@ -526,17 +655,17 @@
                     <aside class="portal-sidebar">
                         <div class="side-widget">
                             <div class="widget-title">
-                                <span>📞 복지팀 업무별 직통 내선</span>
+                                <span>📞 복지팀 업무별 전담 내선번호</span>
                                 <span style="font-size:11.5px; color:#64748b;">052-216-</span>
                             </div>
                             <ul class="dept-contact-list">
                                 <li><span class="dept-label">퇴직연금 · 여비</span><a href="tel:052-216-2775" class="dept-ext">📞 2775</a></li>
                                 <li><span class="dept-label">학자금대부 · 동아리 · 콘도</span><a href="tel:052-216-2774" class="dept-ext">📞 2774</a></li>
-                                <li><span class="dept-label">주택대부 · 기념품 · 직장어린이집</span><a href="tel:052-216-2768" class="dept-ext">📞 2768</a></li>
-                                <li><span class="dept-label">근태 · 4대보험 · 단체상해보험</span><a href="tel:052-216-2773" class="dept-ext">📞 2773</a></li>
+                                <li><span class="dept-label">주택대부 · 기념품 · 어린이집</span><a href="tel:052-216-2768" class="dept-ext">📞 2768</a></li>
+                                <li><span class="dept-label">근태 · 사회보험</span><a href="tel:052-216-2773" class="dept-ext">📞 2773</a></li>
                                 <li><span class="dept-label">급여 업무</span><a href="tel:052-216-2766" class="dept-ext">📞 2766</a></li>
                                 <li><span class="dept-label">총인건비 업무</span><a href="tel:052-216-2767" class="dept-ext">📞 2767</a></li>
-                                <li><span class="dept-label">기술수당 · 해외근무직원 보수</span><a href="tel:052-216-2777" class="dept-ext">📞 2777</a></li>
+                                <li><span class="dept-label">기술수당 · 해외근무직원 보수·복지</span><a href="tel:052-216-2777" class="dept-ext">📞 2777</a></li>
                             </ul>
                         </div>
                     </aside>
@@ -546,8 +675,8 @@
             <section class="tab-section" id="tab-survey">
                 <div class="section-card">
                     <div class="section-header">
-                        <h2>📝 한국석유공사 복지제도 질의 및 설문</h2>
-                        <button type="button" class="doc-btn primary" onclick="switchPortalTab('consult')">💬 상담창으로 돌아가기</button>
+                        <h2>📝 한국석유공사 복지제도 질의 및 만족도 설문</h2>
+                        <button type="button" class="doc-btn primary" onclick="switchPortalTab('consult')">💬 AI 상담창으로 돌아가기</button>
                     </div>
                     <div class="url-connect-box">
                         <h4>🔗 구글 폼(Google Forms) 연결</h4>
@@ -566,27 +695,36 @@
 
         <footer class="site-footer">
             <div class="footer-inner">
-                <div><strong>한국석유공사 (Korea National Oil Corporation)</strong> | 인사복지처 복지팀 사내 포털</div>
-                <div><span>내선: 2775(여비·퇴직연금) / 2774(학자금·동아리) / 2768(주택·기념품)</span></div>
+                <div><strong>한국석유공사 (Korea National Oil Corporation)</strong> | 인사복지처 복지팀 사내 복지 전산 시스템</div>
+                <div><span>내선: 2775(퇴직연금·여비) / 2774(학자금·동아리·콘도) / 2768(주택대부·기념품·어린이집)</span></div>
             </div>
         </footer>
+
+        <div id="mobileContactSheetBackdrop" class="mobile-contact-sheet-backdrop" onclick="if(event.target===this) closeMobileContactSheet()">
+            <div class="mobile-contact-sheet">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:10px; border-bottom:1.5px solid #e2e8f0;">
+                    <h3 style="font-size:16px; font-weight:800; color:#002b66;">📞 복지팀 업무별 내선번호</h3>
+                    <button type="button" onclick="closeMobileContactSheet()" style="background:none; border:none; font-size:20px; color:#64748b; cursor:pointer;">✕</button>
+                </div>
+                <ul class="dept-contact-list">
+                    <li><span class="dept-label">퇴직연금 · 여비</span><a href="tel:052-216-2775" class="dept-ext">📞 2775</a></li>
+                    <li><span class="dept-label">학자금대부 · 동아리 · 콘도</span><a href="tel:052-216-2774" class="dept-ext">📞 2774</a></li>
+                    <li><span class="dept-label">주택대부 · 기념품 지급 · 어린이집</span><a href="tel:052-216-2768" class="dept-ext">📞 2768</a></li>
+                    <li><span class="dept-label">근태 · 사회보험</span><a href="tel:052-216-2773" class="dept-ext">📞 2773</a></li>
+                    <li><span class="dept-label">급여 업무</span><a href="tel:052-216-2766" class="dept-ext">📞 2766</a></li>
+                    <li><span class="dept-label">총인건비 업무</span><a href="tel:052-216-2767" class="dept-ext">📞 2767</a></li>
+                    <li><span class="dept-label">기술수당 · 해외근무직원 보수·복지</span><a href="tel:052-216-2777" class="dept-ext">📞 2777</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <script>
         const DEFAULT_GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc3-4GyUg-RO6F_-k5696qtQcHvYvB6aAXjoHpUczRe0D-tcg/viewform?usp=publish-editor";
         const FIXED_PREFIX = "※ 생성형 AI가 만든 답변은 오류를 포함할 수 있습니다. 정확한 확인을 위해서 담당자와 상의해주시기 바랍니다.\n\n";
 
-        // 공사 사규 원천 지식 베이스
-        const KNOC_DB = [
-            { id: "REG_TR_TRAVEL_01", cat: "국내여비", q: "국내출장 여비 단가표(일비 25,000원, 식비 직원 30,000원/임원 35,000원, 숙박비 대도시 100,000원/기타 80,000원, 친지숙박 20,000원)" },
-            { id: "REG_TR_TRAVEL_02", cat: "국외여비", q: "국외출장 직급별 단가표(팀원 일비 35불, 식비 70불, 숙박비 갑지 150불/을지 120불, 뉴욕·런던·도쿄·파리 등 200% 실비 인정)" },
-            { id: "REG_TR_01", cat: "퇴직연금", q: "DC형 퇴직연금 승진보상금 지급 기준: 승급 시 초회 부담금 납입 시 차액을 추가부담금으로 납입, 횟수 제한 없음" },
-            { id: "REG_HL_01", cat: "주택대부", q: "주택자금대부: 근속 1년 이상 무주택자, 최대 7,000만 원, 5년 거치 후 일시 또는 분할상환, 목적물 변경 1개월 내 신고" },
-            { id: "REG_SL_01", cat: "학자금대부", q: "대학 학자금대부: 연간 1,000만 원 한도 무이자 대부, 졸업 후 2년 거치 후 분할상환" },
-            { id: "REG_INS_01", cat: "단체상해보험", q: "2026년 단체상해보험: 실손입원의료비 3,000만 원 상향, 치과보철치료 연 3회(회당 30만 원) 신설, 뇌졸중·급성심근경색 진단비 제외" },
-            { id: "REG_CL_01", cat: "동아리", q: "사내 동아리: 본사 20명 이상, 행사 7일 전 계획서 및 10일 내 결과보고서 제출 시 활동비 지원" },
-            { id: "REG_DC_01", cat: "직장어린이집", q: "돌고래 어린이집: 평일 07:30~19:30 운영, 우선순위(장애, 한부모, 사내부부, 맞벌이, 다자녀 등)" }
-        ];
+        // 한국석유공사 6개 사규 + 180개 FAQ 통합 지식 데이터베이스
+        const KNOC_TOTAL_DB = """ + db_json + """;
 
         let chatHistory = [];
 
@@ -597,15 +735,34 @@
             const targetBtn = document.getElementById('gnb-' + tabId);
             if (targetSec) targetSec.classList.add('active');
             if (targetBtn) targetBtn.classList.add('active');
+            closeMobileContactSheet();
         }
 
-        function toggleMobileUiMode(enable) {
-            if (enable) document.body.classList.add('force-mobile-ui');
-            else document.body.classList.remove('force-mobile-ui');
+        function openMobileContactSheet() {
+            const sheet = document.getElementById('mobileContactSheetBackdrop');
+            if (sheet) sheet.style.display = 'flex';
         }
 
-        function getSavedApiKey() { return (localStorage.getItem("KNOC_GEMINI_API_KEY") || "").trim(); }
-        function getSavedModel() { return (localStorage.getItem("KNOC_GEMINI_MODEL") || "gemini-1.5-flash").trim(); }
+        function closeMobileContactSheet() {
+            const sheet = document.getElementById('mobileContactSheetBackdrop');
+            if (sheet) sheet.style.display = 'none';
+        }
+
+        function toggleMobileUiMode(enableMobile) {
+            if (enableMobile) {
+                document.body.classList.add('force-mobile-ui');
+            } else {
+                document.body.classList.remove('force-mobile-ui');
+            }
+        }
+
+        function getSavedApiKey() {
+            return (localStorage.getItem("KNOC_GEMINI_API_KEY") || "").trim();
+        }
+
+        function getSavedModel() {
+            return (localStorage.getItem("KNOC_GEMINI_MODEL") || "gemini-1.5-flash").trim();
+        }
 
         function checkApiKeyStatus() {
             const key = getSavedApiKey();
@@ -613,27 +770,37 @@
             const text = document.getElementById("apiStatusText");
             if (key) {
                 if (dot) dot.style.background = "#22c55e";
-                if (text) text.innerHTML = "<strong>Google Gemini API 연동 모드 활성화됨</strong>";
+                if (text) text.innerHTML = "<strong>Gemini AI 클라우드 정밀 연동 활성화됨 (모델: " + getSavedModel() + ")</strong>";
             } else {
                 if (dot) dot.style.background = "#22c55e";
-                if (text) text.innerHTML = "<strong>KNOC 사규 지능형 분석 및 자동 계산 엔진 작동 중</strong>";
+                if (text) text.innerHTML = "<strong>공사 사규·189건 FAQ 맥락 연산 엔진 작동 중 (오직 [핵심 결론]만 출력)</strong>";
             }
         }
 
         function openApiKeyModal() {
             document.getElementById("geminiApiKeyInput").value = getSavedApiKey();
+            document.getElementById("geminiModelSelect").value = getSavedModel();
             document.getElementById("apiKeyModal").style.display = "flex";
         }
-        function closeApiKeyModal() { document.getElementById("apiKeyModal").style.display = "none"; }
+
+        function closeApiKeyModal() {
+            document.getElementById("apiKeyModal").style.display = "none";
+        }
+
         function saveApiKey() {
-            const k = document.getElementById("geminiApiKeyInput").value.trim();
-            const m = document.getElementById("geminiModelSelect").value;
-            localStorage.setItem("KNOC_GEMINI_API_KEY", k);
-            localStorage.setItem("KNOC_GEMINI_MODEL", m);
+            const key = document.getElementById("geminiApiKeyInput").value.trim();
+            const model = document.getElementById("geminiModelSelect").value;
+            if (!key) {
+                alert("API 키를 입력해 주세요.");
+                return;
+            }
+            localStorage.setItem("KNOC_GEMINI_API_KEY", key);
+            localStorage.setItem("KNOC_GEMINI_MODEL", model);
             closeApiKeyModal();
             checkApiKeyStatus();
             alert("API 키가 저장되었습니다.");
         }
+
         function clearApiKey() {
             localStorage.removeItem("KNOC_GEMINI_API_KEY");
             document.getElementById("geminiApiKeyInput").value = "";
@@ -641,21 +808,25 @@
             checkApiKeyStatus();
             alert("API 키가 삭제되었습니다.");
         }
+
         function clearSavedChatMemory() {
             chatHistory = [];
             const box = document.getElementById("chatMessages");
             if (box) {
-                while (box.children.length > 1) box.removeChild(box.lastChild);
+                while (box.children.length > 1) {
+                    box.removeChild(box.lastChild);
+                }
             }
         }
 
         function openRepaymentManual() {
             const w = window.open("", "_blank", "width=820,height=740,scrollbars=yes");
             if (w) {
-                w.document.write("<html><head><title>주택자금대부 상환 매뉴얼</title></head><body style='font-family:Malgun Gothic;padding:30px;line-height:1.7;'><h2>📘 주택자금대부금 상환 매뉴얼 (e-HR)</h2><p>1. e-HR 접속 → [ESS] → [복지] → [대출] → [대출현황 조회 및 상환 신청]</p><p>2. 상환 대상 선택 후 지급유형(일부/전체상환), 입금예정일, 상환금액 입력 후 저장</p><p>3. 부여된 가상계좌로 입금예정일에 정확히 입금 (문의: 복지팀 내선 2768)</p></body></html>");
+                w.document.write("<html><head><title>주택자금대부 상환 매뉴얼</title></head><body style='font-family:Malgun Gothic;padding:30px;line-height:1.7;'><h2>📘 주택자금대부금 상환 매뉴얼 (e-HR)</h2><p>1. e-HR 접속 → [ESS] → [복지] → [대출] → [대출현황 조회 및 상환 신청]</p><p>2. 상환 대상 선택 후 지급유형(일부/전체상환), 입금예정일, 상환금액 입력 및 [저장]</p><p>3. 부여된 하나은행 개인별 가상계좌로 입금예정일에 정확히 입금 (문의: 복지팀 내선 2768)</p></body></html>");
                 w.document.close();
             }
         }
+
         function openObjectChangeFormPreview() {
             const w = window.open("", "_blank", "width=820,height=820,scrollbars=yes");
             if (w) {
@@ -663,6 +834,7 @@
                 w.document.close();
             }
         }
+
         function embedExternalGoogleForm() {
             const input = document.getElementById("customGoogleFormUrl");
             const iframe = document.getElementById("googleFormIframe");
@@ -672,6 +844,7 @@
                 wrapper.style.display = "block";
             }
         }
+
         function openExternalGoogleFormNewTab() {
             const input = document.getElementById("customGoogleFormUrl");
             const url = (input && input.value ? input.value : DEFAULT_GOOGLE_FORM_URL).trim();
@@ -679,228 +852,252 @@
         }
 
         function formatAnswerToHtml(text) {
-            let clean = text.startsWith(FIXED_PREFIX) ? text.substring(FIXED_PREFIX.length) : text;
-            clean = clean.replace(/\\n/g, '\n');
-            const lines = clean.split('\n');
-            let html = '<div style="margin-bottom:8px; color:#b91c1c; font-size:12px; font-weight:700; background:#fef2f2; padding:6px 10px; border-radius:6px; border:1px solid #fecaca;">※ 생성형 AI가 만든 답변은 오류를 포함할 수 있습니다. 정확한 확인을 위해서 담당자와 상의해주시기 바랍니다.</div>';
+            let cleanText = text;
+            if (cleanText.startsWith(FIXED_PREFIX)) {
+                cleanText = cleanText.substring(FIXED_PREFIX.length);
+            }
+            cleanText = cleanText.replace(/\\n/g, '\n');
+            const paragraphs = cleanText.split(/\n\s*\n|\n/);
             
-            for (let l of lines) {
-                l = l.trim();
-                if (!l) continue;
-                if (l.startsWith("[") && l.includes("]")) {
-                    html += `<div style="font-weight:800; color:var(--knoc-navy); margin-top:10px; margin-bottom:4px; font-size:14px;">${l}</div>`;
-                } else if (l.startsWith("•") || l.startsWith("-")) {
-                    html += `<div style="margin-left:8px; margin-bottom:4px; line-height:1.6;">${l}</div>`;
-                } else if (/^\d+\./.test(l)) {
-                    html += `<div style="margin-left:4px; margin-bottom:4px; line-height:1.6; font-weight:500;">${l}</div>`;
+            let html = '<div style="margin-bottom:8px; color:#b91c1c; font-size:12px; font-weight:700; background:#fef2f2; padding:6px 10px; border-radius:6px; border:1px solid #fecaca; line-height:1.5;">※ 생성형 AI가 만든 답변은 오류를 포함할 수 있습니다. 정확한 확인을 위해서 담당자와 상의해주시기 바랍니다.</div>';
+            
+            let inList = false;
+            for (let p of paragraphs) {
+                p = p.trim();
+                if (!p) {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    continue;
+                }
+                
+                if (p.startsWith("[핵심 결론]")) {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    html += `<div style="font-weight:900; color:var(--knoc-navy); margin-top:6px; margin-bottom:8px; font-size:15px; border-bottom:2px solid var(--knoc-navy); padding-bottom:4px;">${p}</div>`;
+                } else if (p.startsWith("•") || p.startsWith("-") || /^\d+\./.test(p)) {
+                    if (!inList) {
+                        html += '<ul style="margin-left:18px; margin-bottom:8px; display:flex; flex-direction:column; gap:4px;">';
+                        inList = true;
+                    }
+                    let itemText = p.replace(/^[•\-\d]+\.\s*/, '');
+                    html += `<li style="line-height:1.6; font-size:13.5px;">${itemText}</li>`;
                 } else {
-                    html += `<div style="line-height:1.65; margin-bottom:6px;">${l}</div>`;
+                    if (inList) { html += '</ul>'; inList = false; }
+                    html += `<div style="line-height:1.65; margin-bottom:6px; font-size:14px;">${p}</div>`;
                 }
             }
+            if (inList) { html += '</ul>'; }
             return html;
         }
 
         function appendMessage(role, text) {
-            const box = document.getElementById("chatMessages");
-            if (!box) return null;
+            const chatMessages = document.getElementById("chatMessages");
+            if (!chatMessages) return null;
+
             const row = document.createElement("div");
             row.className = "message-row " + role;
 
             if (role === "assistant") {
-                const av = document.createElement("div");
-                av.className = "avatar";
-                av.innerHTML = "<span>KNOC</span>";
-                const cnt = document.createElement("div");
-                cnt.className = "message-content";
-                const sName = document.createElement("span");
-                sName.className = "sender-name";
-                sName.textContent = "KNOC 복지제도 AI";
-                const bbl = document.createElement("div");
-                bbl.className = "bubble";
-                bbl.innerHTML = formatAnswerToHtml(text.startsWith("※") ? text : (FIXED_PREFIX + text));
-                cnt.appendChild(sName);
-                cnt.appendChild(bbl);
-                row.appendChild(av);
-                row.appendChild(cnt);
+                const avatar = document.createElement("div");
+                avatar.className = "avatar";
+                avatar.innerHTML = "<span>K</span>";
+
+                const content = document.createElement("div");
+                content.className = "message-content";
+
+                const sender = document.createElement("span");
+                sender.className = "sender-name";
+                sender.textContent = "KNOC 복지제도 AI";
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble";
+                const finalText = text.startsWith("※ 생성형 AI가 만든 답변") ? text : (FIXED_PREFIX + text);
+                bubble.innerHTML = formatAnswerToHtml(finalText);
+
+                content.appendChild(sender);
+                content.appendChild(bubble);
+                row.appendChild(avatar);
+                row.appendChild(content);
             } else {
-                const cnt = document.createElement("div");
-                cnt.className = "message-content";
-                const bbl = document.createElement("div");
-                bbl.className = "bubble";
-                bbl.textContent = text;
-                cnt.appendChild(bbl);
-                row.appendChild(cnt);
+                const content = document.createElement("div");
+                content.className = "message-content";
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble";
+                bubble.textContent = text;
+
+                content.appendChild(bubble);
+                row.appendChild(content);
             }
-            box.appendChild(row);
-            box.scrollTop = box.scrollHeight;
+
+            chatMessages.appendChild(row);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
             return row;
         }
 
-        // =========================================================================
-        // [핵심] 사용자의 질문 상황을 생각하고 연산하여 맞춤 견적·답변을 내는 지능형 엔진
-        // =========================================================================
-        function analyzeAndSynthesizeAnswer(query) {
-            const q = query.toLowerCase();
+        // [핵심 엔진] 사규 6종 + 180개 FAQ 기반 맥락 연산 및 [핵심 결론] 생성 엔진
+        function synthesizeKnocAnswer(query) {
+            const q = query.trim().toLowerCase();
 
-            // 1. 국내출장 (일수, 박수, 직급, 목적지, 친지숙박, 자차, 계산 요구 등 심층 계산/컨설팅 분석)
-            if (q.includes("국내") || q.includes("출장") || q.includes("일비") || q.includes("숙박비") || q.includes("식비") || q.includes("여비") || q.includes("자차") || q.includes("운임") || q.includes("장기")) {
-                
-                // 기간 감지 (1박 2일, 2박 3일, 당일, 3일 등)
-                let days = 0;
-                let nights = 0;
-                const nightDayMatch = q.match(/(\d+)\s*박\s*(\d+)\s*일/);
-                if (nightDayMatch) {
-                    nights = parseInt(nightDayMatch[1], 10);
-                    days = parseInt(nightDayMatch[2], 10);
-                } else {
-                    const dayMatch = q.match(/(\d+)\s*일/);
-                    const nightMatch = q.match(/(\d+)\s*박/);
-                    if (dayMatch) days = parseInt(dayMatch[1], 10);
-                    if (nightMatch) nights = parseInt(nightMatch[1], 10);
-                    if (q.includes("당일") && days === 0) days = 1;
+            // 1. [국외/해외 여비 연산 로직]
+            const isOverseas = q.includes("해외") || q.includes("국외") || q.includes("외국") || q.includes("미국") || q.includes("뉴욕") || q.includes("런던") || q.includes("도쿄") || q.includes("파리") || q.includes("모스크바") || q.includes("달러") || q.includes("usd") || q.includes("갑지") || q.includes("을지");
+            if (isOverseas && (q.includes("여비") || q.includes("출장") || q.includes("숙박") || q.includes("식비") || q.includes("일비") || q.includes("얼마") || q.includes("계산") || q.includes("비용"))) {
+                let nights = 0, days = 1;
+                const nightMatch = q.match(/(\d+)\s*박/);
+                const dayMatch = q.match(/(\d+)\s*일/);
+                if (nightMatch) nights = parseInt(nightMatch[1], 10);
+                if (dayMatch) days = parseInt(dayMatch[1], 10);
+                else if (nights > 0) days = nights + 1;
+
+                let role = "팀원";
+                let daily = 35, food = 70, hotelA = 150, hotelB = 120;
+                if (q.includes("임원") || q.includes("사장") || q.includes("본부장")) {
+                    role = "임원"; daily = 60; food = 130; hotelA = 300; hotelB = 250;
+                } else if (q.includes("부서장") || q.includes("지사장") || q.includes("처장")) {
+                    role = "부서장"; daily = 40; food = 100; hotelA = 220; hotelB = 160;
+                } else if (q.includes("팀장") || q.includes("부장") || q.includes("담당역")) {
+                    role = "팀장"; daily = 40; food = 80; hotelA = 170; hotelB = 130;
                 }
 
-                const isExec = q.includes("임원") || q.includes("사장") || q.includes("이사") || q.includes("본부장");
-                const positionName = isExec ? "임원" : "일반직원";
-                
-                const isMajorCity = q.includes("서울") || q.includes("세종") || q.includes("제주") || q.includes("광역시") || q.includes("부산") || q.includes("대구") || q.includes("인천") || q.includes("광주") || q.includes("대전") || q.includes("울산");
-                const isRelativeStay = q.includes("친지") || q.includes("친척") || q.includes("지인") || q.includes("자택");
+                const isSpecialCity = q.includes("뉴욕") || q.includes("런던") || q.includes("파리") || q.includes("도쿄") || q.includes("모스크바") || q.includes("la") || q.includes("샌프란시스코") || q.includes("워싱턴") || q.includes("싱가포르") || q.includes("홍콩");
+                const actualHotelLimit = isSpecialCity ? hotelA * 2 : hotelA;
+                const totalDaily = daily * days;
+                const totalFood = food * days;
+                const totalHotel = nights * actualHotelLimit;
+                const totalEst = totalDaily + totalFood + totalHotel;
 
-                // 계산·견적·일정이 감지된 경우 -> 사규 조항 나열이 아니라 '직접 계산'하여 총액과 내역을 답변
-                if (days > 0 || nights > 0 || q.includes("얼마") || q.includes("총") || q.includes("합계") || q.includes("계산") || q.includes("비용")) {
-                    if (days === 0 && nights > 0) days = nights + 1;
-                    if (days === 0) days = 2; // 기본 1박 2일
-                    if (nights === 0 && days > 1) nights = days - 1;
-
-                    const dailyRate = 25000; // 일비: 1일 25,000원
-                    const mealRate = isExec ? 35000 : 30000; // 식비: 직원 30,000원, 임원 35,000원
-                    const totalDaily = dailyRate * days;
-                    const totalMeal = mealRate * days;
-
-                    let hotelRate = 0;
-                    let hotelDesc = "";
-                    if (nights > 0) {
-                        if (isRelativeStay) {
-                            hotelRate = 20000;
-                            hotelDesc = `친지 집 숙박 정액 (1박당 20,000원 × ${nights}박)`;
-                        } else if (isExec) {
-                            hotelDesc = `실비 전액 지원 (상한액 없음, 법인카드 결제)`;
-                        } else if (isMajorCity) {
-                            hotelRate = 100000;
-                            hotelDesc = `대도시(서울·세종·제주·광역시) 실비 상한 (1박당 최대 100,000원 × ${nights}박)`;
-                        } else {
-                            hotelRate = 80000;
-                            hotelDesc = `기타 지역 실비 상한 (1박당 최대 80,000원 × ${nights}박)`;
-                        }
-                    }
-
-                    const totalHotelMax = hotelRate * nights;
-
-                    let res = `[핵심 결론]\n`;
-                    res += `질문하신 **${positionName} 기준 ${nights > 0 ? nights + '박 ' : ''}${days}일 국내출장** 시 한국석유공사 「여비규정」(제6조~제13조 및 [별표 1])에 따라 정산받으실 수 있는 총 여비 내역을 직접 계산한 결과입니다.\n\n`;
-
-                    res += `[출장 여비 산출 내역 (1인 기준)]\n`;
-                    res += `1. **일비 (정액 지급)**: 25,000원 × ${days}일 = **${totalDaily.toLocaleString()}원**\n`;
-                    res += `2. **식비 (정액 지급)**: ${mealRate.toLocaleString()}원 × ${days}일 = **${totalMeal.toLocaleString()}원**\n`;
-                    
-                    if (nights > 0) {
-                        if (isExec) {
-                            res += `3. **숙박비**: ${hotelDesc}\n`;
-                            res += `   👉 **확정 정액 수령액(일비+식비)**: **${(totalDaily + totalMeal).toLocaleString()}원** + 숙박비 실비 청구액 + KTX/항공 실비\n\n`;
-                        } else if (isRelativeStay) {
-                            res += `3. **친지 숙박비 (정액)**: 20,000원 × ${nights}박 = **${totalHotelMax.toLocaleString()}원**\n`;
-                            res += `   👉 **총 정액 지급액 (숙박 영수증 불필요)**: **${(totalDaily + totalMeal + totalHotelMax).toLocaleString()}원** + 교통비 실비\n\n`;
-                        } else {
-                            res += `3. **숙박비 (실비 한도)**: ${hotelDesc} = **최대 ${totalHotelMax.toLocaleString()}원 한도**\n`;
-                            res += `   👉 **총 예상 지급액**: **최대 ${(totalDaily + totalMeal + totalHotelMax).toLocaleString()}원** + KTX/고속버스 운임 실비\n`;
-                            res += `   (※ 일비+식비 확정분인 **${(totalDaily + totalMeal).toLocaleString()}원**은 개인 계좌로 정액 지급되며, 숙박비는 한도 내 법인카드 영수증 실비 정산입니다.)\n\n`;
-                        }
-                    } else {
-                        res += `   👉 **당일 출장 총 지급액**: **${(totalDaily + totalMeal).toLocaleString()}원** + 교통비 실비\n\n`;
-                    }
-
-                    res += `[실무 유의사항]\n`;
-                    res += `• **교통운임 별도 지급**: ${isExec ? 'KTX 특실, 항공 이코노미' : 'KTX 일반실, 고속버스, 항공 이코노미'} 실비가 영수증에 따라 전액 추가 지원됩니다.\n`;
-                    res += `• **식사 제공 시 공제**: 행사나 주최 측에서 식사를 제공한 경우, 1끼당 식비의 1/3(${Math.round(mealRate/3).toLocaleString()}원)을 공제하고 청구하셔야 합니다.\n`;
-                    res += `• **자차 이용 시**: 업무상 부득이하여 결재권자 승인을 받은 경우에만 유류비, 통행료, 주차비가 실비로 인정됩니다.\n\n`;
-                    res += `[출처 규정]\n• 한국석유공사 「여비규정」 제6조~제13조 및 [별표 1] 국내여비표\n• 문의: 복지팀 국내여비 담당 (📞 내선 2775)`;
-                    return res;
+                let res = `[핵심 결론]\n`;
+                res += `한국석유공사 「여비규정」 [별표 2] 국외여비표에 따른 **${role}**의 ${nights > 0 ? `${nights}박 ${days}일` : `${days}일`} 국외출장 여비 산출 결과는 **총 미화 $${totalEst.toLocaleString()}**(항공운임 실비 별도)입니다.\n\n`;
+                res += `• 일비: $${daily} × ${days}일 = **$${totalDaily.toLocaleString()}**\n`;
+                res += `• 식비: $${food} × ${days}일 = **$${totalFood.toLocaleString()}**\n`;
+                if (nights > 0) {
+                    res += `• 숙박비 상한: 1박당 $${actualHotelLimit} 한도 내 실비 정산 (${isSpecialCity ? "고물가 특례 200% 적용" : "갑지 기준"}) × ${nights}박 = **최대 $${totalHotel.toLocaleString()}**\n`;
                 }
-            }
-
-            // 2. 국외여비 (해외출장 국가·도시·직급 특례 계산)
-            if (q.includes("국외") || q.includes("해외") || q.includes("달러") || q.includes("usd") || q.includes("별표2") || q.includes("갑지") || q.includes("을지") || q.includes("뉴욕") || q.includes("런던") || q.includes("도쿄") || q.includes("파리")) {
-                let rank = "팀원";
-                let daily = 35, meal = 70, hotelA = 150, hotelB = 120;
-                if (q.includes("임원")) { rank = "임원"; daily = 60; meal = 130; hotelA = 300; hotelB = 250; }
-                else if (q.includes("부서장") || q.includes("지사장")) { rank = "부서장"; daily = 40; meal = 100; hotelA = 220; hotelB = 160; }
-                else if (q.includes("팀장")) { rank = "팀장"; daily = 40; meal = 80; hotelA = 170; hotelB = 130; }
-
-                const isSpecialCity = q.includes("뉴욕") || q.includes("런던") || q.includes("도쿄") || q.includes("파리") || q.includes("모스크바") || q.includes("싱가포르") || q.includes("홍콩") || q.includes("워싱턴") || q.includes("샌프란시스코");
-
-                let res = `[핵심 결론]\n한국석유공사 「여비규정」 [별표 2] 국외여비표에 따른 **${rank} 기준 해외출장 1일 지원액** 분석입니다.\n\n`;
-                res += `[1일 기준 단가 산출 (단위: USD)]\n`;
-                res += `• **일비**: 1일당 **$${daily}** (정액)\n`;
-                res += `• **식비**: 1일당 **$${meal}** (정액, 식사 제공 시 1끼당 1/3 감액)\n`;
-                res += `• **숙박비 상한액**: 갑지 지역 **$${hotelA}** / 을지 지역 **$${hotelB}** (실비 상한)\n`;
-                res += `• **항공 운임**: ${rank === '임원' ? '비즈니스석' : '이코노미석'} 실비 전액\n\n`;
-
-                if (isSpecialCity) {
-                    res += `[🌟 고물가 도시 숙박비 200% 실비 특례 적용 안내]\n`;
-                    res += `문의하신 도시는 사규 특례 지역으로 인정되어, 기준 숙박비 상한($${hotelA})의 **최대 200%인 $${hotelA * 2} 한도 내에서 실비 정산**이 가능합니다.\n\n`;
-                }
-
-                res += `[출처 규정]\n• 한국석유공사 여비규정 별표 2 국외여비표\n• 문의: 복지팀 국외여비 담당 (📞 내선 2775)`;
+                res += `• 항공운임: ${role === "임원" ? "비즈니스석" : "이코노미석"} 실비 지원`;
                 return res;
             }
 
-            // 3. 승진보상금 (퇴직연금)
-            if (q.includes("승진") || q.includes("승급") || q.includes("추가부담금")) {
-                return `[핵심 결론]\n한국석유공사 「확정기여형(DC)/혼합형 퇴직연금규약」 제15조 및 [별지 3]에 따라, 직급 승급으로 임금 상승이 발생한 임직원에게는 **승진 시마다 예외 없이 '추가부담금(승진보상금)'이 지급**됩니다.\n\n` +
-                       `[세부 기준 및 횟수]\n` +
-                       `• 지급 횟수: **재직 중 횟수 제한 없음 (승진할 때마다 매번 산정하여 지급)**\n` +
-                       `• 산정 원리: 승급 후 첫 부담금 납입 시점을 기준으로, 승급 전 과거 근무기간 전체에 대해 직급 상승에 따른 퇴직금 차액을 전액 추가 납입합니다.\n` +
-                       `• 임금피크제 진입 여부와 무관하게 규정에 따라 보장됩니다.\n\n` +
-                       `[출처]\n• 확정기여형 퇴직연금규약 제15조\n• 문의: 복지팀 퇴직연금 담당 (📞 내선 2775)`;
+            // 2. [국내 여비 연산 로직]
+            if (q.includes("국내") || q.includes("출장") || q.includes("여비") || q.includes("숙박") || q.includes("일비") || q.includes("식비")) {
+                let nights = 0, days = 1;
+                const nightMatch = q.match(/(\d+)\s*박/);
+                const dayMatch = q.match(/(\d+)\s*일/);
+                if (nightMatch) nights = parseInt(nightMatch[1], 10);
+                if (dayMatch) days = parseInt(dayMatch[1], 10);
+                else if (nights > 0) days = nights + 1;
+
+                const isExecutive = q.includes("임원") || q.includes("사장") || q.includes("본부장");
+                const dailyRate = 25000;
+                const foodRate = isExecutive ? 35000 : 30000;
+                const isBigCity = q.includes("서울") || q.includes("세종") || q.includes("제주") || q.includes("부산") || q.includes("대구") || q.includes("인천") || q.includes("광주") || q.includes("대전") || q.includes("울산") || q.includes("광역시") || q.includes("대도시");
+                const hotelRate = isBigCity ? 100000 : 80000;
+                const hotelName = isBigCity ? "서울·세종·제주·광역시" : "기타 지역";
+
+                const totalDaily = dailyRate * days;
+                const totalFood = foodRate * days;
+                const totalHotel = nights * hotelRate;
+                const totalEstimated = totalDaily + totalFood + totalHotel;
+
+                let res = `[핵심 결론]\n`;
+                res += `한국석유공사 「여비규정」 [별표 1] 국내여비표에 따른 ${isExecutive ? "임원" : "일반직원"}의 ${nights > 0 ? `${nights}박 ${days}일` : `${days}일 당일`} 출장 여비 계산 결과는 **총 ${totalEstimated.toLocaleString()}원**(교통비 실비 별도)입니다.\n\n`;
+                res += `• 일비: ${dailyRate.toLocaleString()}원 × ${days}일 = **${totalDaily.toLocaleString()}원**\n`;
+                res += `• 식비: ${foodRate.toLocaleString()}원 × ${days}일 = **${totalFood.toLocaleString()}원**\n`;
+                if (nights > 0) {
+                    if (isExecutive) {
+                        res += `• 숙박비: ${nights}박 실비 전액 정산 (상한 없음)\n`;
+                    } else {
+                        res += `• 숙박비: 1박당 최대 ${hotelRate.toLocaleString()}원(${hotelName}) 한도 내 실비 정산 = **최대 ${totalHotel.toLocaleString()}원**\n`;
+                    }
+                }
+                res += `• 교통비: KTX 일반실/항공 실비 별도 지급 (자가용 이용 시 부득이한 업무 목적 증빙 시 통행료·유류비 실비)`;
+                return res;
             }
 
-            // 4. 주택자금대부
-            if (q.includes("주택") || q.includes("대부") || q.includes("전세") || q.includes("매매") || q.includes("목적물")) {
-                return `[핵심 결론]\n한국석유공사 「주택자금대부 운영요령」에 따라 근속 1년 이상 무주택 직원은 주택 구입 또는 임차(전세)를 위해 **최대 7,000만 원**까지 대부받을 수 있습니다.\n\n` +
-                       `[상환 스케줄 및 목적물 관리]\n` +
-                       `• 대부 한도: 최대 7,000만 원 (전용면적 85㎡ 이하 주거용 주택)\n` +
-                       `• 상환 방법: **5년 거치 후 일시상환이 원칙**이나, 거치 만료 전 **5년 거치 연장** 또는 **최장 15년(거치 연장 시 10년) 원금균등분할상환** 신청이 가능합니다.\n` +
-                       `• ⚠️ **이사/목적물 변경 시 필수 조치**: 대부 대상 주택을 매도하거나 전세 계약이 만료된 경우, 사유 발생일로부터 **1개월 이내에 목적물 변경 신청서**를 제출해야 하며 미이행 시 전액 즉시 회수됩니다.\n\n` +
-                       `[출처]\n• 주택자금대부 운영요령 제2조~제20조\n• 문의: 복지팀 주택대부 담당 (📞 내선 2768)`;
+            // 3. [승진보상금]
+            if (q.includes("승진") || q.includes("승급") || q.includes("추가부담금") || q.includes("보상금")) {
+                return `[핵심 결론]\n` +
+                       `한국석유공사 「확정기여형/혼합형 퇴직연금규약」 제15조 및 [별지 3]에 따른 **'승진보상금(승급 추가부담금)'**은 확정기여형(DC) 가입자가 직급 승진 시 임금이 인상됨에 따라, **과거 승진 전 근무기간 전체에 대해서도 승진 후 인상된 임금(DB 퇴직금 기준)을 소급 반영하여 기존 DC 누적 부담금과의 차액을 퇴직연금 계좌에 전액 추가 납입해 주는 제도**입니다. 재직 중 횟수 제한 없이 승진할 때마다 매번 100% 산정하여 지급됩니다.`;
             }
 
-            // 5. 학자금 대부
+            // 4. [출산축하금]
+            if (q.includes("출산") || q.includes("축하금") || q.includes("태아") || q.includes("자녀출생")) {
+                return `[핵심 결론]\n` +
+                       `한국석유공사 「복지규정」 제7조에 따라 직원 또는 배우자가 출산한 경우 **둘째 자녀 출산 시 200만 원, 셋째 자녀 이상 출산 시 자녀당 300만 원**의 출산축하금을 지급합니다. (첫째 자녀는 미지급, 부부 모두 직원인 경우 1명에게만 지급)\n` +
+                       `신청은 자녀 출생일로부터 **1년 이내**에 가족관계증명서 또는 주민등록등본을 첨부하여 e-HR 시스템에서 신청해야 합니다. (휴직자의 경우 복직일로부터 3개월 이내 신청 가능)`;
+            }
+
+            // 5. [해외근무 단신부임 귀국휴가 / 임차료]
+            if (q.includes("단신") || (q.includes("해외") && (q.includes("귀국") || q.includes("임차") || q.includes("주택") || q.includes("가족수당") || q.includes("특수지")))) {
+                if (q.includes("휴가") || q.includes("귀국") || q.includes("항공")) {
+                    return `[핵심 결론]\n` +
+                           `한국석유공사 「해외근무직원관리규정」 제11조의2에 따라 부임 후 3개월이 경과한 해외 단신부임자에게는 **3개월마다 본국 왕복항공운임 지원 및 비행시간별 귀국휴가(10시간 미만 2일, 20시간 미만 4일, 20시간 이상 6일)**를 부여합니다. 또한 본인 귀국 2회 지원을 갈음하여 국내 가족(배우자·미혼자녀)의 주재국 방문 항공운임으로 대체 지원할 수 있습니다.`;
+                }
+                if (q.includes("임차") || q.includes("월세") || q.includes("사택")) {
+                    return `[핵심 결론]\n` +
+                           `한국석유공사 「해외근무직원 보수·복지규정 시행세칙」 제10조에 따라 해외 주택임차료는 재외공무원 임차상한선(1급: 공무원 3급, 2·3급: 공무원 4급 5년 이상, 4급 이하: 공무원 5급 이하)을 준용합니다. 단신부임 직원은 기준액에서 **5% 감액**, 동반가족 포함 5인 이상은 **10% 가산** 적용됩니다.`;
+                }
+            }
+
+            // 6. [지사/사무소 임차주택 규정]
+            if (q.includes("임차주택") || q.includes("사택") || (q.includes("지사") && q.includes("주택"))) {
+                return `[핵심 결론]\n` +
+                       `한국석유공사 「임차주택관리규정」 제2조 및 제5조에 따라 근무지에 본인 및 부양가족 소유 주택이 없는 직원에게 사택을 제공합니다.\n` +
+                       `• 전용면적 한도: 2·3급 85㎡(25.7평) 이하, 4급 이하 66㎡(20평) 이하 (단신부임은 직급 무관 20평 이하, 가족 4인 이상은 25.7평 이하)\n` +
+                       `• 지사별 기준가(85㎡ 기준): 울산 1.1억 원, 거제 9,500만 원, 평택 9,000만 원, 서산 7,000만 원, 여수 6,000만 원 한도 내 제공`;
+            }
+
+            // 7. [주택자금대부]
+            if (q.includes("주택자금") || q.includes("주택대부") || q.includes("대부금") || q.includes("전세자금") || q.includes("목적물")) {
+                return `[핵심 결론]\n` +
+                       `한국석유공사 「주택자금대부 운영요령」에 따라 근속 1년 이상 무주택 직원은 전용면적 85㎡ 이하 주택에 대해 **최대 7,000만 원**까지 대부 가능합니다. 상환은 **5년 거치 후 일시상환(5년 연장 또는 최장 15년 분할상환 가능)**이며, 주택 매도나 전세 만료 등 사유 발생 시 **1개월 이내에 목적물 변경 신청서**를 복지팀에 제출해야 합니다.`;
+            }
+
+            // 8. [학자금 대부]
             if (q.includes("학자금") || q.includes("등록금") || q.includes("대학")) {
-                return `[핵심 결론]\n한국석유공사 「학자금대부 운영요령」에 따라 대학교 취학 직원 본인 및 자녀에 대해 **연간 1,000만 원 한도 내 무이자 대부**를 지원합니다.\n\n` +
-                       `[상환 조건]\n` +
-                       `• 상환 일정: 대학 졸업 익월부터 **2년 거치 후**, 4년제 대학은 5년(60개월), 2년제는 3년(36개월) 동안 급여에서 매월 원금균등 공제됩니다.\n` +
-                       `• 신청 기한: 고지서 발급 후 납부일로부터 2개월 이내 e-HR로 신청\n\n` +
-                       `[출처]\n• 학자금대부 운영요령 제2조~제9조\n• 문의: 복지팀 학자금 담당 (📞 내선 2774)`;
+                return `[핵심 결론]\n` +
+                       `한국석유공사 「학자금대부 운영요령」에 따라 대학 취학 직원 본인 및 자녀 등록금에 대해 **연간 1,000만 원 한도 내 무이자 대부**를 지원합니다. 상환은 대학 졸업 익월부터 **2년 거치 후 4년제 5년(60개월), 2년제 3년(36개월)** 동안 매월 급여에서 균등 공제됩니다.`;
             }
 
-            // 6. 단체상해보험
-            if (q.includes("보험") || q.includes("상해") || q.includes("임플란트") || q.includes("치아") || q.includes("실손")) {
-                return `[핵심 결론]\n한국석유공사 2026년 임직원 단체상해보험(KB손해보험) 기준 안내입니다. 임직원 본인, 배우자, 만 20세 이하 자녀가 대상입니다.\n\n` +
-                       `[2026년 주요 보장 변경점]\n` +
-                       `• 실손입원의료비 한도 상향: 3,000만 원 (통원의료비는 미포함)\n` +
-                       `• 치과보철치료 신설: 임플란트·틀니·브릿지 연간 3회(회당 30만 원) 정액 지원\n` +
-                       `• 주의: 뇌졸중 및 급성심근경색 진단비는 2026년 계약부터 보장에서 제외되었습니다.\n\n` +
-                       `[출처]\n• 2026년 단체상해보험 약관\n• 문의: 복지팀 사회보험 담당 (📞 내선 2773)`;
+            // 9. [기념품 지급]
+            if (q.includes("기념품") || q.includes("창립기념일") || q.includes("생일") || q.includes("노동절")) {
+                return `[핵심 결론]\n` +
+                       `한국석유공사는 복지규정 제11조 및 기준에 따라 **창립기념일(3.3), 근로자의 날(5.1), 노동조합창립일(10.18), 본인 생일, 자녀 초·중·고 입학 시** 모바일 쿠폰 또는 물품 형태의 기념품을 지급합니다. 신청은 e-HR 포털 복지 메뉴에서 지정 기간 내에 신청 가능합니다.`;
             }
 
-            // 7. 사규 외 질문에 대한 명확한 사규 부재 안내
-            return `[핵심 결론]\n질문하신 사항에 대해 공사 복지 사규집 및 데이터베이스를 전수 검토하였으나, **해당 내용에 대한 명시적 규정이나 산출 기준이 사규에 존재하지 않습니다.**\n\n` +
-                   `[실무 안내]\n공사 사규에 없는 예외 사항이나 개별 사안은 임의로 추정할 수 없으므로, 아래 업무별 전담 담당자에게 직접 확인해 주시기 바랍니다.\n\n` +
-                   `[복지팀 담당 내선]\n` +
-                   `• 여비 · 퇴직연금: 📞 2775\n` +
-                   `• 주택대부 · 직장어린이집: 📞 2768\n` +
-                   `• 학자금 · 동아리 · 콘도: 📞 2774\n` +
-                   `• 사회보험 · 근태: 📞 2773`;
+            // 10. [콘도 이용]
+            if (q.includes("콘도") || q.includes("휴양") || q.includes("리조트") || q.includes("대명") || q.includes("한화")) {
+                return `[핵심 결론]\n` +
+                       `한국석유공사 복지시설 기준에 따라 전 임직원(정규직/계약직)은 공사 보유 법인 콘도를 이용할 수 있습니다. 성수기(여름/겨울)는 별도 공지에 따라 추첨 배정되며, 비수기는 이용 희망일 30일 전부터 e-HR을 통해 선착순 신청 가능합니다. 배정 후 7일 전 미취소 시 패널티가 부과됩니다.`;
+            }
+
+            // 11. [180개 FAQ 시맨틱/키워드 유사도 매칭]
+            let bestMatch = null;
+            let maxScore = 0;
+            const queryTerms = q.split(/\s+/).filter(t => t.length > 1);
+
+            for (const item of KNOC_TOTAL_DB) {
+                let score = 0;
+                const targetText = (item.q + " " + item.cat + " " + item.a).toLowerCase();
+                for (const term of queryTerms) {
+                    if (targetText.includes(term)) {
+                        score += (item.q.toLowerCase().includes(term) ? 3 : 1);
+                    }
+                }
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMatch = item;
+                }
+            }
+
+            if (bestMatch && maxScore >= 3) {
+                let answer = bestMatch.a;
+                if (!answer.startsWith("[핵심 결론]")) {
+                    answer = `[핵심 결론]\n` + answer;
+                }
+                return answer;
+            }
+
+            // 12. 사규 외 질문에 대한 안전한 안내
+            return `[핵심 결론]\n` +
+                   `문의하신 사항은 **한국석유공사 사규집 및 180건의 복지 FAQ 데이터베이스에 명시된 규정이 존재하지 않습니다.** (복지팀 여비·퇴직연금: 📞 2775 / 주택대부·기념품·어린이집: 📞 2768 / 학자금·동아리·콘도: 📞 2774 / 해외근무 보수복지: 📞 2777)`;
         }
 
         async function handleSendQuery(customText) {
@@ -913,23 +1110,24 @@
 
             const apiKey = getSavedApiKey();
 
-            // API 키가 없을 때도 생각하고 계산하는 지능형 자체 엔진 작동!
+            // API 키가 없거나 독립 구동 시 자체 지능형 연산 엔진 작동
             if (!apiKey) {
-                const answer = analyzeAndSynthesizeAnswer(q);
+                const answer = synthesizeKnocAnswer(q);
                 chatHistory.push({ role: "user", parts: [{ text: q }] });
                 chatHistory.push({ role: "model", parts: [{ text: answer }] });
                 setTimeout(() => { appendMessage("assistant", answer); }, 120);
                 return;
             }
 
-            // API 키가 있는 경우 외부 Gemini에 맥락 계산 지침을 주어 연산 실행
-            const loadingRow = appendMessage("assistant", "🧠 출장 일정 및 질문 조건을 분석하여 계산하고 있습니다...");
+            // API 키가 있는 경우 외부 Gemini 모델에 사규 DB 전체를 공급하여 생성 연산 실행
+            const loadingRow = appendMessage("assistant", "🧠 사규 및 FAQ 데이터를 종합 분석하여 계산하고 있습니다...");
             try {
                 const systemPrompt = [
-                    "당신은 한국석유공사(KNOC) 복지팀 공식 사규 컨설팅 AI입니다.",
-                    "1. 사용자가 '1박 2일 총여비', '당일 출장' 등 구체적인 일정이나 계산을 물어보면 절대로 규정 조항만 단순 복사하지 마십시오.",
-                    "2. 여비규정(일비 25,000원, 식비 직원 30,000원/임원 35,000원, 숙박비 대도시 100,000원/기타 80,000원, 친지 20,000원)에 따라 사용자의 조건에 맞게 직접 곱하고 더해서 [출장 여비 산출 내역]을 계산해 명세서 형태로 제시하십시오.",
-                    "3. 오직 제공된 한국석유공사 사규 데이터에 명시된 사실만 근거로 하되, 사규에 없는 내용은 지어내지 말고 모른다고 명시하고 복지팀 내선번호(2775 등)를 안내하십시오."
+                    "당신은 오직 '한국석유공사(KNOC)' 사내 복지 사규만을 안내하는 전문 AI입니다.",
+                    "1. 답변은 다른 사설이나 인사말 없이 오직 '[핵심 결론]' 하나만 작성하여 즉시 명확하게 결론을 제시하십시오.",
+                    "2. 공무원 규정이나 타 공공기관 규정을 절대 인용하거나 혼동하지 마십시오. 오직 제공된 [한국석유공사 사규 및 FAQ 데이터베이스]만을 근거로 하십시오.",
+                    "3. 출장 여비 계산 질문은 공사 여비규정에 따라 일비, 식비, 숙박비를 기간과 직급, 지역에 맞게 직접 정확히 곱하고 더해서 총액을 계산하여 [핵심 결론]으로 제시하십시오.",
+                    "4. 제공된 데이터에 없는 질문은 모호하게 지어내지 말고, '한국석유공사 사규에 명시된 규정이 존재하지 않습니다'라고 명확히 선을 긋고 담당 부서 내선번호를 안내하십시오."
                 ].join("\n");
 
                 const url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(getSavedModel()) + ":generateContent?key=" + encodeURIComponent(apiKey);
@@ -939,8 +1137,8 @@
                     body: JSON.stringify({
                         system_instruction: { parts: [{ text: systemPrompt }] },
                         contents: [
-                            ...chatHistory.slice(-10),
-                            { role: "user", parts: [{ text: "[한국석유공사 사규 데이터베이스]\n" + JSON.stringify(KNOC_DB) + "\n\n[질문]\n" + q }] }
+                            ...chatHistory.slice(-8),
+                            { role: "user", parts: [{ text: "[한국석유공사 사규 및 FAQ 데이터베이스]\n" + JSON.stringify(KNOC_TOTAL_DB) + "\n\n[임직원 질의]\n" + q }] }
                         ]
                     })
                 });
@@ -956,7 +1154,7 @@
                 appendMessage("assistant", rawText);
             } catch (err) {
                 if (loadingRow) loadingRow.remove();
-                const fallbackReply = analyzeAndSynthesizeAnswer(q);
+                const fallbackReply = synthesizeKnocAnswer(q);
                 appendMessage("assistant", fallbackReply);
             }
         }
